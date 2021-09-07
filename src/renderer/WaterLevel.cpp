@@ -392,7 +392,7 @@ CWaterLevel::WaterLevelAccordingToRectangles(float fX, float fY, float *pfOutLev
 bool
 CWaterLevel::TestVisibilityForFineWaterBlocks(const CVector &worldPos)
 {
-	static CVector2D tab[] =
+	static RwV2d tab[] =
 	{
 		{ 50.0f, 50.0f },
 		{ -50.0f, 50.0f },

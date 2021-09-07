@@ -1574,8 +1574,7 @@ CPed::FightStrike(CVector &touchedNodePos)
 			maxDistanceToBeBeaten = nearPed->GetBoundRadius() + tFightMoves[m_curFightMove].strikeRadius;
 
 		if (nearPed->bUsesCollision || nearPed->m_nPedState == PED_DEAD) {
-			CVector nearPedCentre;
-			nearPed->GetBoundCentre(nearPedCentre);
+			CVector nearPedCentre = nearPed->GetBoundCentre();
 			CVector potentialAttackDistance = nearPedCentre - touchedNodePos;
 
 			// He can beat us

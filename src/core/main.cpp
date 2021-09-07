@@ -1954,7 +1954,7 @@ void TheGame(void)
 			TheText.Load();
 		}
 
-		CGame::currLevel = TheMemoryCard.GetLevelToLoad();
+		CGame::currLevel = (eLevelName)TheMemoryCard.GetLevelToLoad();
 	}
 #else
 	//TODO
@@ -1977,7 +1977,7 @@ void TheGame(void)
 			CSprite2d::InitPerFrame();
 			CFont::InitPerFrame();
 
-			PUSH_MEMID(MEMID_GAME_PROCESS)
+			PUSH_MEMID(MEMID_GAME_PROCESS);
 			CPointLights::InitPerFrame();
 			CGame::Process();
 			POP_MEMID();
@@ -2066,7 +2066,7 @@ void TheGame(void)
 
 			CTimer::Update();
 
-			POP_MEMID():	// MEMID_RENDER
+			POP_MEMID();	// MEMID_RENDER
 
 			if (g_SlowMode)
 				ProcessSlowMode();

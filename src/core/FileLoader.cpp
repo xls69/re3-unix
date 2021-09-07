@@ -427,6 +427,7 @@ CFileLoader::LoadClumpFile(RwStream *stream, uint32 id)
 	clump = RpClumpStreamRead(stream);
 	if(clump == nil)
 		return false;
+	InitClump(clump);
 	mi = (CClumpModelInfo*)CModelInfo::GetModelInfo(id);
 	mi->SetClump(clump);
 	if (mi->GetModelType() == MITYPE_PED && id != 0 && RwStreamFindChunk(stream, rwID_CLUMP, nil, nil)) {

@@ -192,7 +192,7 @@ CCutsceneHead::PlayAnimation(const char *animName)
 		CStreaming::MakeSpaceFor(size * CDSTREAM_SECTOR_SIZE);
 		CStreaming::ImGonnaUseStreamingMemory();
 
-		RwStreamSkip(stream, offset*2048);
+		RwStreamSkip(stream, offset*CDSTREAM_SECTOR_SIZE);
 		if(RwStreamFindChunk(stream, rwID_HANIMANIMATION, nil, nil)){
 			anim = RpHAnimAnimationStreamRead(stream);
 			RpHAnimHierarchySetCurrentAnim(hier, anim);
@@ -214,7 +214,7 @@ CCutsceneHead::PlayAnimation(const char *animName)
 			CStreaming::MakeSpaceFor(size * CDSTREAM_SECTOR_SIZE);
 			CStreaming::ImGonnaUseStreamingMemory();
 
-			RwStreamSkip(stream, offset*2048);
+			RwStreamSkip(stream, offset*CDSTREAM_SECTOR_SIZE);
 			anim = rw::Animation::streamReadLegacy(stream);
 			RpHAnimHierarchySetCurrentAnim(hier, anim);
 

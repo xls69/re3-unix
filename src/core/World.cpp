@@ -1701,7 +1701,7 @@ CWorld::ShutDown(void)
 	}
 	ms_listMovingEntityPtrs.Flush();
 #if GTA_VERSION <= GTA3_PS2_160
-	CPools::Shutdown();
+	CPools::ShutDown();
 #endif
 }
 
