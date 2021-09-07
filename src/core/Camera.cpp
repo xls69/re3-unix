@@ -728,6 +728,8 @@ CCamera::Process(void)
 #if GTA_VERSION > GTA3_PS2_160
 	GenerationDistMultiplier = LODDistMultiplier;
 	LODDistMultiplier *= CRenderer::ms_lodDistScale;
+#else
+	GenerationDistMultiplier = 1.0f;	// temporary
 #endif
 
 	// Keep track of speed
@@ -1026,23 +1028,27 @@ CCamera::CamControl(void)
 			if(CPad::GetPad(0)->CycleCameraModeUpJustDown() && !CReplay::IsPlayingBack() &&
 			   (m_bLookingAtPlayer || WhoIsInControlOfTheCamera == CAMCONTROL_OBBE) &&
 			   !m_WideScreenOn && !m_bFailedCullZoneTestPreviously){
+#ifdef GTA_PC_CONTROLS
 				if(FrontEndMenuManager.m_ControlMethod == CONTROL_STANDARD){
 					if(PedZoomIndicator == CAM_ZOOM_TOPDOWN)
 						PedZoomIndicator = CAM_ZOOM_1;
 					else
 						PedZoomIndicator = CAM_ZOOM_TOPDOWN;
 				}else
+#endif
 					PedZoomIndicator--;
 			}
 			if(CPad::GetPad(0)->CycleCameraModeDownJustDown() && !CReplay::IsPlayingBack() &&
 			   (m_bLookingAtPlayer || WhoIsInControlOfTheCamera == CAMCONTROL_OBBE) &&
 			   !m_WideScreenOn && !m_bFailedCullZoneTestPreviously){
+#ifdef GTA_PC_CONTROLS
 				if(FrontEndMenuManager.m_ControlMethod == CONTROL_STANDARD){
 					if(PedZoomIndicator == CAM_ZOOM_TOPDOWN)
 						PedZoomIndicator = CAM_ZOOM_1;
 					else
 						PedZoomIndicator = CAM_ZOOM_TOPDOWN;
 				}else
+#endif
 					PedZoomIndicator++;
 			}
 			// disabled obbe's cam here

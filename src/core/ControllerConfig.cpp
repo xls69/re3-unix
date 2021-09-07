@@ -17,6 +17,8 @@
 #include "Camera.h"
 #include "GenericGameStorage.h"
 
+#ifdef GTA_PC_CONTROLS
+
 CControllerConfigManager ControlsManager;
 
 CControllerConfigManager::CControllerConfigManager()
@@ -2882,3 +2884,5 @@ void CControllerConfigManager::ResetSettingOrder(e_ControllerAction action)
 		}
 	}
 }
+
+#endif

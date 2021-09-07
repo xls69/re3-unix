@@ -46,7 +46,9 @@ u_long128 pad_dma_buf[scePadDmaBufferMax] __attribute__((aligned(64)));
 u_long128 pad2_dma_buf[scePadDmaBufferMax] __attribute__((aligned(64)));
 #endif
 
+#ifdef GTA_PC_CONTROLS
 CMousePointerStateHelper MousePointerStateHelper;
+#endif
 
 bool CPad::bDisplayNoControllerMessage;
 bool CPad::bObsoleteControllerMessage;
@@ -60,6 +62,7 @@ unsigned char act_direct[6];
 unsigned char act_align[6];
 #endif
 
+#ifdef GTA_PC_CONTROLS
 CKeyboardState CPad::OldKeyState;
 CKeyboardState CPad::NewKeyState;
 CKeyboardState CPad::TempKeyState;
@@ -69,6 +72,7 @@ char CPad::KeyBoardCheatString[20];
 CMouseControllerState CPad::OldMouseControllerState;
 CMouseControllerState CPad::NewMouseControllerState;
 CMouseControllerState CPad::PCTempMouseControllerState;
+#endif
 
 #ifdef DETECT_PAD_INPUT_SWITCH
 bool CPad::IsAffectedByController = false;
@@ -422,6 +426,7 @@ void CPad::Clear(bool bResetPlayerControls)
 	NewState.Clear();
 	OldState.Clear();
 
+#ifdef GTA_PC_CONTROLS
 	PCTempKeyState.Clear();
 	PCTempJoyState.Clear();
 	PCTempMouseState.Clear();
@@ -433,6 +438,7 @@ void CPad::Clear(bool bResetPlayerControls)
 	NewMouseControllerState.Clear();
 	OldMouseControllerState.Clear();
 	PCTempMouseControllerState.Clear();
+#endif
 
 	Phase = 0;
 	ShakeFreq = 0;
@@ -457,6 +463,7 @@ void CPad::Clear(bool bResetPlayerControls)
 	AverageEntries = 0;
 }
 
+#ifdef GTA_PC_CONTROLS
 void CPad::ClearMouseHistory()
 {
 	PCTempMouseControllerState.Clear();
@@ -690,6 +697,7 @@ CControllerState CPad::ReconcileTwoControllersInput(CControllerState const &Stat
 #undef _FIX_AXIS_DIR
 #undef _FIX_RECON_DIR
 }
+#endif
 
 void CPad::StartShake(int16 nDur, uint8 nFreq)
 {
@@ -893,6 +901,7 @@ void CPad::AddToCheatString(char c)
 }
 #endif
 
+#ifdef GTA_PC_CONTROLS
 void CPad::AddToPCCheatString(char c)
 {
 	for ( int32 i = ARRAY_SIZE(KeyBoardCheatString) - 2; i >= 0; i-- )
@@ -1026,6 +1035,7 @@ void CPad::AddToPCCheatString(char c)
 
 	#undef _CHEATCMP
 }
+#endif
 
 #ifdef XINPUT
 int CPad::XInputJoy1 = 0;
@@ -1097,6 +1107,15 @@ void CPad::AffectFromXinput(uint32 pad)
 
 void CPad::UpdatePads(void)
 {
+#ifndef GTA_PC_CONTROLS
+	Pads[0].Update(0);
+#ifndef MASTER
+	Pads[1].Update(1);
+#else
+	Pads[1].NewState.Clear();
+	Pads[1].OldState.Clear();
+#endif
+#else
 	bool bUpdate = true;
 
 	GetPad(0)->UpdateMouse();
@@ -1146,6 +1165,7 @@ void CPad::UpdatePads(void)
 	OldKeyState = NewKeyState;
 	NewKeyState = TempKeyState;
 #endif
+#endif
 }
 
 void CPad::ProcessPCSpecificStuff(void)
@@ -1158,12 +1178,14 @@ void CPad::Update(int16 pad)
 	OldState = NewState;
 
 #ifdef GTA_PS2
-	bObsoleteControllerMessage = false;
+	if(pad != 0)
+		bObsoleteControllerMessage = false;
 
 	//int iPressureBtn;
-	int id;
-	int ext_id=0;
-	int state;
+	int i;
+	int16 id;
+	int16 ext_id=0;
+	int16 state;
 	int rterm_id = 0;
 	unsigned short paddata, tpad;
 	unsigned char rdata[32];
@@ -1243,7 +1265,7 @@ void CPad::Update(int16 pad)
 		if (scePadGetReqState(pad, 0)==scePadReqStateComplete)
 		{
 			// Lock mode complete
-			Phase=0; // Accept normal dualshock
+			Phase=70; // Accept normal dualshock
 		}
 		break;
 
@@ -1277,15 +1299,12 @@ void CPad::Update(int16 pad)
 
 		act_align[0] = 0; // Offset 0 for motor0
 		act_align[1] = 1; // Offset 1 for motor1
-
-		act_align[2] = 0xff;
-		act_align[3] = 0xff;
-		act_align[4] = 0xff;
-		act_align[5] = 0xff;
+		for(i = 2; i < 6; i++)
+			act_align[i] = 0xff;
 
 		// Asynchronous function
-		if (scePadSetActAlign(pad, 0, act_align)==0) break;
-		Phase++;
+		if (scePadSetActAlign(pad, 0, act_align))
+			Phase++;
 		break;
 
 
@@ -1335,46 +1354,85 @@ void CPad::Update(int16 pad)
 				{
 					if (!CRecordDataForGame::IsPlayingBack() && !CRecordDataForChase::ShouldThisPadBeLeftAlone(pad))
 					{
-						tpad = paddata;
-
-						NewState.DPadUp			= ( tpad & SCE_PADLup )	   ? 255 : 0;
-						NewState.DPadDown		= ( tpad & SCE_PADLdown )  ? 255 : 0;
-						NewState.DPadLeft		= ( tpad & SCE_PADLleft )  ? 255 : 0;
-						NewState.DPadRight		= ( tpad & SCE_PADLright ) ? 255 : 0;
-						NewState.Triangle		= ( tpad & SCE_PADRup )	   ? 255 : 0;
-						NewState.Cross			= ( tpad & SCE_PADRdown )  ? 255 : 0;
-						NewState.Square			= ( tpad & SCE_PADRleft )  ? 255 : 0;
-						NewState.Circle			= ( tpad & SCE_PADRright ) ? 255 : 0;
-						NewState.Start			= ( tpad & SCE_PADstart )  ? 255 : 0;
-						NewState.Select			= ( tpad & SCE_PADselect ) ? 255 : 0;
-						NewState.LeftShoulder1	= ( tpad & SCE_PADL1 )	   ? 255 : 0;
-						NewState.LeftShoulder2	= ( tpad & SCE_PADL2 )	   ? 255 : 0;
-						NewState.RightShoulder1 = ( tpad & SCE_PADR1 )	   ? 255 : 0;
-						NewState.RightShoulder2 = ( tpad & SCE_PADR2 )	   ? 255 : 0;
-						NewState.LeftShock		= ( tpad & SCE_PADi )	   ? 255 : 0;
-						NewState.RightShock		= ( tpad & SCE_PADj )	   ? 255 : 0;
-						NewState.RightStickX	= (short)rdata[4];
-						NewState.RightStickY	= (short)rdata[5];
-						NewState.LeftStickX		= (short)rdata[6];
-						NewState.LeftStickY		= (short)rdata[7];
-
 						#define CLAMP_AXIS(x) (((x) < 43 && (x) >= -42) ? 0 : (((x) > 0) ? (Max((x)-42, 0)*127/85) : Min((x)+42, 0)*127/85))
 						#define FIX_AXIS(x) CLAMP_AXIS((x)-128)
 
-						NewState.RightStickX = FIX_AXIS(NewState.RightStickX);
-						NewState.RightStickY = FIX_AXIS(NewState.RightStickY);
-						NewState.LeftStickX	 = FIX_AXIS(NewState.LeftStickX);
-						NewState.LeftStickY	 = FIX_AXIS(NewState.LeftStickY);
+						tpad = paddata;
 
+						if((rterm_id&0xF) == 9){
+							NewState.DPadUp			= rdata[10];
+							NewState.DPadUp 		= Min(NewState.DPadUp*4, 255);
+							NewState.DPadDown		= rdata[11];
+							NewState.DPadDown 		= Min(NewState.DPadDown*4, 255);
+							NewState.DPadLeft		= rdata[9];
+							NewState.DPadLeft 		= Min(NewState.DPadLeft*4, 255);
+							NewState.DPadRight		= rdata[8];
+							NewState.DPadRight 		= Min(NewState.DPadRight*4, 255);
+							NewState.Triangle		= rdata[12];
+							NewState.Triangle 		= Min(NewState.Triangle*4, 255);
+							NewState.Cross			= rdata[14];
+							NewState.Cross 			= Min(NewState.Cross*4, 255);
+							NewState.Square			= rdata[15];
+							NewState.Square 		= Min(NewState.Square*4, 255);
+							NewState.Circle			= rdata[13];
+							NewState.Circle 		= Min(NewState.Circle*4, 255);
+							NewState.Start			= ( tpad & SCE_PADstart )  ? 255 : 0;
+							NewState.Select			= ( tpad & SCE_PADselect ) ? 255 : 0;
+							NewState.LeftShoulder1	= rdata[16];
+							NewState.LeftShoulder1 	= Min(NewState.LeftShoulder1*4, 255);
+							NewState.LeftShoulder2	= rdata[18];
+							NewState.LeftShoulder2 	= Min(NewState.LeftShoulder2*4, 255);
+							NewState.RightShoulder1 = rdata[17];
+							NewState.RightShoulder1	= Min(NewState.RightShoulder1*4, 255);
+							NewState.RightShoulder2 = rdata[19];
+							NewState.RightShoulder2	= Min(NewState.RightShoulder2*4, 255);
+							NewState.LeftShock		= ( tpad & SCE_PADi )	   ? 255 : 0;
+							NewState.RightShock		= ( tpad & SCE_PADj )	   ? 255 : 0;
+							NewState.RightStickX	= (short)rdata[4];
+							NewState.RightStickY	= (short)rdata[5];
+							NewState.LeftStickX		= (short)rdata[6];
+							NewState.LeftStickY		= (short)rdata[7];
+
+							NewState.RightStickX = FIX_AXIS(NewState.RightStickX);
+							NewState.RightStickY = FIX_AXIS(NewState.RightStickY);
+							NewState.LeftStickX	 = FIX_AXIS(NewState.LeftStickX);
+							NewState.LeftStickY	 = FIX_AXIS(NewState.LeftStickY);
+						}else{
+							NewState.DPadUp			= ( tpad & SCE_PADLup )	   ? 255 : 0;
+							NewState.DPadDown		= ( tpad & SCE_PADLdown )  ? 255 : 0;
+							NewState.DPadLeft		= ( tpad & SCE_PADLleft )  ? 255 : 0;
+							NewState.DPadRight		= ( tpad & SCE_PADLright ) ? 255 : 0;
+							NewState.Triangle		= ( tpad & SCE_PADRup )	   ? 255 : 0;
+							NewState.Cross			= ( tpad & SCE_PADRdown )  ? 255 : 0;
+							NewState.Square			= ( tpad & SCE_PADRleft )  ? 255 : 0;
+							NewState.Circle			= ( tpad & SCE_PADRright ) ? 255 : 0;
+							NewState.Start			= ( tpad & SCE_PADstart )  ? 255 : 0;
+							NewState.Select			= ( tpad & SCE_PADselect ) ? 255 : 0;
+							NewState.LeftShoulder1	= ( tpad & SCE_PADL1 )	   ? 255 : 0;
+							NewState.LeftShoulder2	= ( tpad & SCE_PADL2 )	   ? 255 : 0;
+							NewState.RightShoulder1 = ( tpad & SCE_PADR1 )	   ? 255 : 0;
+							NewState.RightShoulder2 = ( tpad & SCE_PADR2 )	   ? 255 : 0;
+							NewState.LeftShock		= ( tpad & SCE_PADi )	   ? 255 : 0;
+							NewState.RightShock		= ( tpad & SCE_PADj )	   ? 255 : 0;
+							NewState.RightStickX	= (short)rdata[4];
+							NewState.RightStickY	= (short)rdata[5];
+							NewState.LeftStickX		= (short)rdata[6];
+							NewState.LeftStickY		= (short)rdata[7];
+
+							NewState.RightStickX = FIX_AXIS(NewState.RightStickX);
+							NewState.RightStickY = FIX_AXIS(NewState.RightStickY);
+							NewState.LeftStickX	 = FIX_AXIS(NewState.LeftStickX);
+							NewState.LeftStickY	 = FIX_AXIS(NewState.LeftStickY);
+						}
 						#undef FIX_AXIS
 						#undef CLAMP_AXIS
 					}
 				}
 				else if ( (rterm_id>>4) == 4 ) // Controller (digital)
 				{
+					NewState.Clear();
 					if ( pad == 0 )
 						bObsoleteControllerMessage = true;
-					NewState.Clear();
 				}
 
 				if ( NewState.IsAnyButtonPressed() )
@@ -1414,6 +1472,7 @@ void CPad::Update(int16 pad)
 		CGame::bDemoMode = false;
 #endif
 
+#ifdef GTA_PC_CONTROLS
 #if (defined GTA_PS2 || defined FIX_BUGS)
 	if (!CRecordDataForGame::IsPlayingBack() && !CRecordDataForChase::ShouldThisPadBeLeftAlone(pad))
 #endif
@@ -1427,6 +1486,7 @@ void CPad::Update(int16 pad)
 	PCTempMouseState.Clear();
 
 	ProcessPCSpecificStuff();
+#endif
 
 	if ( ++iCurrHornHistory >= HORNHISTORY_SIZE )
 		iCurrHornHistory = 0;
@@ -2821,6 +2881,7 @@ void CPad::ResetCheats(void)
 	CTimer::SetTimeScale(1.0f);
 }
 
+#ifdef GTA_PC_CONTROLS
 char *CPad::EditString(char *pStr, int32 nSize)
 {
 	int32 pos = (int32)strlen(pStr);
@@ -3023,3 +3084,4 @@ int32 *CPad::EditCodesForControls(int32 *pRsKeys, int32 nSize)
 
 	return pRsKeys;
 }
+#endif
