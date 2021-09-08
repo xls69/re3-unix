@@ -353,3 +353,123 @@ SetAmbientColours(RwRGBAReal *color)
 {
 	RpLightSetColor(pAmbient, color);
 }
+
+#ifdef GTA_PS2
+
+int numObjsRendered;
+
+extern RwReal *_skyLightFillPos;
+extern RwUInt32 _skyLightQWordsWritten;
+
+void
+WriteLightingMatrix(RwMatrix *inverseMat)
+{
+	*_skyLightFillPos++ = inverseMat->right.x;
+	*_skyLightFillPos++ = inverseMat->right.y;
+	*_skyLightFillPos++ = inverseMat->right.z;
+	*_skyLightFillPos++ = 1.0f;
+	*_skyLightFillPos++ = inverseMat->up.x;
+	*_skyLightFillPos++ = inverseMat->up.y;
+	*_skyLightFillPos++ = inverseMat->up.z;
+	*_skyLightFillPos++ = 1.0f;
+	*_skyLightFillPos++ = inverseMat->at.x;
+	*_skyLightFillPos++ = inverseMat->at.y;
+	*_skyLightFillPos++ = inverseMat->at.z;
+	*_skyLightFillPos++ = 1.0f;
+	*_skyLightFillPos++ = inverseMat->pos.x;
+	*_skyLightFillPos++ = inverseMat->pos.y;
+	*_skyLightFillPos++ = inverseMat->pos.z;
+	*_skyLightFillPos++ = 1.0f;
+	_skyLightQWordsWritten += 4;
+}
+
+void
+PS2ManagerApplyDirectionalLightingCB(RwInt32 objectType, void *object, RwSurfaceProperties *surface, RxWorldApplyLightFunc lightingFunc)
+{
+	int i;
+	RpAtomic *atomic = (RpAtomic*)object;
+	RwV3d *at;
+
+	numObjsRendered++;
+
+	if(!rwObjectTestFlags(RpAtomicGetGeometry(atomic), rpGEOMETRYLIGHT))
+		return;
+
+	if(rwObjectTestFlags(pDirect, rpLIGHTLIGHTATOMICS)){
+		RwMatrix invMat;
+		// Invert only touches raw matrix values, so this is ok
+		Invert(*(CMatrix*)&RpAtomicGetFrame(atomic)->ltm, *(CMatrix*)&invMat);
+
+		((RwReal *)&surfLightCoeffs)[0] = surface->ambient * (RwReal)(255.0f);
+		((RwReal *)&surfLightCoeffs)[1] = surface->specular * (RwReal)(255.0f);
+		((RwReal *)&surfLightCoeffs)[2] = surface->diffuse * (RwReal)(255.0f);
+		WriteLightingMatrix(&invMat);
+
+		// Ambient light
+		_skyLightFillPos[0] =  RpLightGetColor(pAmbient)->red;
+		_skyLightFillPos[1] =  RpLightGetColor(pAmbient)->green;
+		_skyLightFillPos[2] =  RpLightGetColor(pAmbient)->blue;
+		((RwUInt32 *)(&_skyLightFillPos[3]))[0] = (RwUInt32)rpLIGHTAMBIENT;
+		_skyLightFillPos += 4;
+		_skyLightQWordsWritten++;
+
+		// Direct light
+		_skyLightFillPos[0] =  RpLightGetColor(pDirect)->red;
+		_skyLightFillPos[1] =  RpLightGetColor(pDirect)->green;
+		_skyLightFillPos[2] =  RpLightGetColor(pDirect)->blue;
+		((RwUInt32 *)(&_skyLightFillPos[3]))[0] = (RwUInt32)rpLIGHTDIRECTIONAL;
+		_skyLightFillPos += 4;
+		at = RwMatrixGetAt(RwFrameGetMatrix(RpLightGetFrame(pDirect)));
+		*_skyLightFillPos++ = at->x;
+		*_skyLightFillPos++ = at->y;
+		*_skyLightFillPos++ = at->z;
+		*_skyLightFillPos++ = 0.0f;
+		_skyLightQWordsWritten += 2;
+
+		// Extra directionals
+		for(i = 0; i < NumExtraDirLightsInWorld; i++){
+			RpLight *light = pExtraDirectionals[i];
+			_skyLightFillPos[0] =  RpLightGetColor(light)->red;
+			_skyLightFillPos[1] =  RpLightGetColor(light)->green;
+			_skyLightFillPos[2] =  RpLightGetColor(light)->blue;
+			((RwUInt32 *)(&_skyLightFillPos[3]))[0] = (RwUInt32)rpLIGHTDIRECTIONAL;
+			_skyLightFillPos += 4;
+			at = RwMatrixGetAt(RwFrameGetMatrix(RpLightGetFrame(light)));
+			*_skyLightFillPos++ = at->x;
+			*_skyLightFillPos++ = at->y;
+			*_skyLightFillPos++ = at->z;
+			*_skyLightFillPos++ = 0.0f;
+			_skyLightQWordsWritten += 2;
+		}
+	}else{
+		// BUG: aren't we forgetting surface props?
+
+		// no matrix needed
+		_skyLightFillPos += 16;
+		_skyLightQWordsWritten += 4;
+
+		// Ambient light
+		_skyLightFillPos[0] =  RpLightGetColor(pAmbient)->red;
+		_skyLightFillPos[1] =  RpLightGetColor(pAmbient)->green;
+		_skyLightFillPos[2] =  RpLightGetColor(pAmbient)->blue;
+		((RwUInt32 *)(&_skyLightFillPos[3]))[0] = (RwUInt32)rpLIGHTAMBIENT;
+		_skyLightFillPos += 4;
+		_skyLightQWordsWritten++;
+	}
+}
+
+void
+SetupPS2ManagerLightingCallback(RxPipeline *pipe)
+{
+	RxNodeDefinition *nodeDef = RxNodeDefinitionGetPS2Manager(rpATOMIC);
+	RxPipelineNode *node = RxPipelineFindNodeByName(pipe, nodeDef->name, nil, nil);
+	RxPipelineNodePS2ManagerSetLighting(node, PS2ManagerApplyDirectionalLightingCB);
+}
+
+void
+SetupPS2ManagerDefaultLightingCallback(void)
+{
+	SetupPS2ManagerLightingCallback(RpAtomicGetDefaultInstancePipeline());
+}
+
+#endif

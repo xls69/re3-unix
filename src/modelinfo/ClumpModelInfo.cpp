@@ -120,8 +120,10 @@ CClumpModelInfo::SetClump(RpClump *clump)
 			RpClumpForAllAtomics(clump, SetAtomicRendererCB, (void*)CVisibilityPlugins::RenderPlayerCB);
 	}
 #else
+#ifdef GTA_PC
 	if(strcmp(GetModelName(), "playerh") == 0)
 		RpClumpForAllAtomics(clump, SetAtomicRendererCB, (void*)CVisibilityPlugins::RenderPlayerCB);
+#endif
 #endif
 }
 

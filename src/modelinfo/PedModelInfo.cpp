@@ -118,8 +118,10 @@ CPedModelInfo::SetClump(RpClump *clump)
 	SetFrameIds(m_pPedIds);
 	if(m_hitColModel == nil)
 		CreateHitColModel();
+#ifdef GTA_PC
 	if(strcmp(GetModelName(), "player") == 0)
 		RpClumpForAllAtomics(m_clump, SetAtomicRendererCB, (void*)CVisibilityPlugins::RenderPlayerCB);
+#endif
 #endif
 }
 

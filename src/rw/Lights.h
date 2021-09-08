@@ -26,4 +26,9 @@ void SetAmbientColoursForPedsCarsAndObjects(void);
 void SetAmbientColoursToIndicateRoadGroup(int i);
 void SetAmbientColours(RwRGBAReal *color);
 
+#ifdef GTA_PS2
+void SetupPS2ManagerLightingCallback(RxPipeline *pipe);
+void SetupPS2ManagerDefaultLightingCallback(void);
+#endif
+
 #endif // __GTA_LIGHTS_H__
