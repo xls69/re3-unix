@@ -50,7 +50,12 @@ CCutsceneHead::CreateRwObject(void)
 	CEntity::CreateRwObject();
 	assert(RwObjectGetType(m_rwObject) == rpCLUMP);
 	atm = GetFirstAtomic((RpClump*)m_rwObject);
+#if !defined(rwLIBRARYCURRENTVERSION) || rwLIBRARYCURRENTVERSION > 0x310
 	RpSkinAtomicSetHAnimHierarchy(atm, RpHAnimFrameGetHierarchy(GetFirstChild(RpClumpGetFrame((RpClump*)m_rwObject))));
+#else
+	RpSkin *skin = RpSkinAtomicGetSkin(atm);
+	RpSkinSetSkeleton(skin, RpSkinSkeletonCreate(skin));
+#endif
 }
 
 void
@@ -89,12 +94,18 @@ CCutsceneHead::ProcessControl(void)
 
 	assert(RwObjectGetType(m_rwObject) == rpCLUMP);
 	atm = GetFirstAtomic((RpClump*)m_rwObject);
+#if !defined(rwLIBRARYCURRENTVERSION) || rwLIBRARYCURRENTVERSION > 0x310
 	hier = RpSkinAtomicGetHAnimHierarchy(atm);
 #ifdef GTA_PS2_STUFF
 	// PS2 only plays anims in cutscene, PC always plays anims
 	if(!lastLoadedSKA || CCutsceneMgr::IsRunning())
 #endif
 	RpHAnimHierarchyAddAnimTime(hier, CTimer::GetTimeStepNonClippedInSeconds());
+#else
+	RpSkin *skin = RpSkinAtomicGetSkin(atm);
+	if(skin && CCutsceneMgr::IsRunning())
+		RpSkinAddAnimTime(skin, CTimer::GetTimeStepNonClippedInSeconds());
+#endif
 }
 
 void
@@ -126,9 +137,11 @@ CCutsceneHead::Render(void)
 
 	UpdateRwFrame();
 
+#if !defined(rwLIBRARYCURRENTVERSION) || rwLIBRARYCURRENTVERSION > 0x310
 	assert(RwObjectGetType(m_rwObject) == rpCLUMP);
 	atm = GetFirstAtomic((RpClump*)m_rwObject);
 	RpHAnimHierarchyUpdateMatrices(RpSkinAtomicGetHAnimHierarchy(atm));
+#endif
 
 	CObject::Render();
 }
@@ -175,6 +188,7 @@ CCutsceneHead::PlayAnimation(const char *animName)
 	uint32 offset, size;
 	RwStream *stream;
 
+#if !defined(rwLIBRARYCURRENTVERSION) || rwLIBRARYCURRENTVERSION > 0x310
 #ifdef GTA_PS2_STUFF
 	lastLoadedSKA = false;
 #endif
@@ -226,5 +240,29 @@ CCutsceneHead::PlayAnimation(const char *animName)
 		}
 	}
 #endif
+#endif
+#else
+	assert(RwObjectGetType(m_rwObject) == rpCLUMP);
+	atm = GetFirstAtomic((RpClump*)m_rwObject);
+	RpSkin *skin = RpSkinAtomicGetSkin(atm);
+	RpSkinSkeleton *skel = RpSkinGetSkeleton(skin);
+
+	sprintf(gString, "%s.ska", animName);
+
+	if(CCutsceneMgr::ms_pCutsceneDir->FindItem(gString, offset, size)){
+		stream = RwStreamOpen(rwSTREAMFILENAME, rwSTREAMREAD, "ANIM\\CUTS.IMG");
+		assert(stream);
+
+		CStreaming::MakeSpaceFor(size * CDSTREAM_SECTOR_SIZE);
+		CStreaming::ImGonnaUseStreamingMemory();
+
+		RwStreamSkip(stream, offset*CDSTREAM_SECTOR_SIZE);
+		RpSkinAnim *anim = RpSkinAnimStreamRead(stream);
+		RpSkinSkeletonSetCurrentAnim(skel, anim);
+
+		CStreaming::IHaveUsedStreamingMemory();
+
+		RwStreamClose(stream, nil);
+	}
 #endif
 }

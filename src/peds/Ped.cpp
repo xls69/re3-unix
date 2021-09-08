@@ -8299,6 +8299,7 @@ CPed::SetRadioStation(void)
 		return;
 
 	uint8 category = GetPedRadioCategory(GetModelIndex());
+#ifdef GTA_PC
 	if (DMAudio.IsMP3RadioChannelAvailable()) {
 		if (CGeneral::GetRandomNumber() & 15) {
 			for (orderInCat = 0; orderInCat < 4; orderInCat++) {
@@ -8308,19 +8309,24 @@ CPed::SetRadioStation(void)
 		} else {
 			m_pMyVehicle->m_nRadioStation = USERTRACK;
 		}
-	} else {
+	} else
+#endif
+	{
 		for (orderInCat = 0; orderInCat < 4; orderInCat++) {
 			if (m_pMyVehicle->m_nRadioStation == radiosPerRadioCategories[category][orderInCat])
 				break;
 		}
 	}
 	if (orderInCat == 4) {
+#ifdef GTA_PC
 		if (DMAudio.IsMP3RadioChannelAvailable()) {
 			if (CGeneral::GetRandomNumber() & 15)
 				m_pMyVehicle->m_nRadioStation = radiosPerRadioCategories[category][CGeneral::GetRandomNumber() & 3];
 			else
 				m_pMyVehicle->m_nRadioStation = USERTRACK;
-		} else {
+		} else
+#endif
+		{
 			m_pMyVehicle->m_nRadioStation = radiosPerRadioCategories[category][CGeneral::GetRandomNumber() & 3];
 		}
 	}
