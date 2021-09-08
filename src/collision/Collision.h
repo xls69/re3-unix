@@ -27,6 +27,9 @@ struct CStoredCollPoly
 class CCollision
 {
 public:
+#if GTA_VERSION <= GTA3_PS2_160
+	static char *ms_pColFiles[NUM_LEVELS];
+#endif
 	static eLevelName ms_collisionInMemory;
 	static CLinkList<CColModel*> ms_colModelCache;
 #ifdef NO_ISLAND_LOADING

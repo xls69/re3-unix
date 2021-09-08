@@ -46,15 +46,15 @@ GetVUresult(CVuVector &point, CVuVector &normal, float &dist)
 {
 #ifdef GTA_PS2
 	int ret;
+	register int tmp;
 	__asm__ volatile (
 		"cfc2.i	%0,vi01\n"	// .i important! wait for VU0 to finish
-		"sqc2	vf01,(%1)\n"
-		"sqc2	vf02,(%2)\n"
-		"qmfc2	$12,vf03\n"
-		"sw	$12,(%3)\n"
-		: "=r" (ret)
+		"sqc2	vf01,(%2)\n"
+		"sqc2	vf02,(%3)\n"
+		"qmfc2	%1,vf03\n"
+		"sw	%1,(%4)\n"
+		: "=&r" (ret), "=&r" (tmp)
 		: "r" (&point), "r" (&normal), "r" (&dist)
-		: "$12"
 	);
 	return ret;
 #else
@@ -67,6 +67,14 @@ GetVUresult(CVuVector &point, CVuVector &normal, float &dist)
 
 #endif
 
+#if GTA_VERSION <= GTA3_PS2_160
+char *CCollision::ms_pColFiles[NUM_LEVELS] = {
+	"models\\coll\\generic.col",
+	"models\\coll\\indust.col",
+	"models\\coll\\commer.col",
+	"models\\coll\\suburb.col"
+};
+#endif
 eLevelName CCollision::ms_collisionInMemory;
 CLinkList<CColModel*> CCollision::ms_colModelCache;
 
@@ -1817,6 +1825,13 @@ CCollision::ProcessColModels(const CMatrix &matrixA, CColModel &modelA,
 	CMatrix &matAB = *(CMatrix*)SPR(0x1FF0);
 	CMatrix &matBA = *(CMatrix*)SPR(0x2040);
 	int i, j, k;
+
+#ifdef FIX_BUGS
+	// actually not needed on PS2 because *= doesn't update attachment
+	// and on PC the attachment happens to be zero. still nicer to make sure
+	matAB.m_attachment = nil;
+	matBA.m_attachment = nil;
+#endif
 
 	// From model A space to model B space
 	Invert(matrixB, matAB);
