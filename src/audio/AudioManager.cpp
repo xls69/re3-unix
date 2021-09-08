@@ -519,8 +519,13 @@ cAudioManager::ServiceSoundEffects()
 #endif
 	m_bReduceReleasingPriority = (m_FrameCounter++ % 5) == 0;
 	if (m_bIsPaused && !m_bWasPaused) {
-		for (int32 i = 0; i < NUM_CHANNELS; i++)
+#if GTA_VERSION < GTA3_PC_10
+		for (uint32 i = 0; i < NUM_CHANNELS; i++)
+			SampleManager.SetChannelFrequency(i, 0);
+#else
+		for (uint32 i = 0; i < NUM_CHANNELS; i++)
 			SampleManager.StopChannel(i);
+#endif
 
 		ClearRequestedQueue();
 		if (m_nActiveQueue) {
@@ -548,7 +553,7 @@ cAudioManager::ServiceSoundEffects()
 	AdjustSamplesVolume();
 #endif
 	ProcessActiveQueues();
-#ifdef AUDIO_OAL
+#ifndef AUDIO_MSS
 	SampleManager.Service();
 #endif
 	for (int32 i = 0; i < m_sAudioScriptObjectManager.m_nScriptObjectEntityTotal; i++) {

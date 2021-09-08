@@ -206,12 +206,15 @@ cSampleManager::GetSampleLength(uint32 nSample)
 	ASSERT( nSample < TOTAL_AUDIO_SAMPLES );
 	return 0;
 }
+
 #ifdef GTA_PS2
-void cSampleManager::UpdateReverb(uint8, uint8, uint8, uint8, uint8)
+void
+cSampleManager::UpdateReverb(uint8, uint8, uint8, uint8, uint8)
 {
 }
 #else
-bool8 cSampleManager::UpdateReverb(void)
+bool8
+cSampleManager::UpdateReverb(void)
 {
 	return FALSE;
 }
@@ -365,6 +368,11 @@ cSampleManager::IsStreamPlaying(uint8 nStream)
 	ASSERT( nStream < MAX_STREAMS );
 
 	return FALSE;
+}
+
+void
+cSampleManager::Service(void)
+{
 }
 
 bool8

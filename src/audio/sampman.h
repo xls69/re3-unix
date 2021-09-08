@@ -195,7 +195,7 @@ public:
 	uint32 GetSampleLength         (uint32 nSample);
 	
 #ifdef GTA_PS2
-	void UpdateReverb(uint8, uint8, uint8, uint8, uint8);
+	void  UpdateReverb(uint8, uint8, uint8, uint8, uint8);
 #else
 	bool8 UpdateReverb(void);
 #endif
@@ -225,7 +225,7 @@ public:
 	void  SetStreamedVolumeAndPan(uint8 nVolume, uint8 nPan, bool8 nEffectFlag, uint8 nStream = 0);
 	int32 GetStreamedFileLength                                                (uint8 nStream = 0);
 	bool8 IsStreamPlaying                                                      (uint8 nStream = 0);
-#ifdef AUDIO_OAL
+#ifndef AUDIO_MSS
 	void  Service(void);
 #endif
 	bool8 InitialiseSampleBanks(void);
