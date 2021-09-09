@@ -25,7 +25,7 @@ DisplayWarningControllerMsg()
 		CFont::SetJustifyOn();
 		CFont::SetRightJustifyOff();
 		CFont::SetBackGroundOnlyTextOn();
-		CFont::SetWrapx(SCRW-X(40.0f)); // 600.0f
+		CFont::SetWrapx(FR(40.0f)); // 600.0f
 		
 		CPlaceableShText text;
 		text.SetPosition(X(60.0f), Y(180.0f), false); // 205.714294
@@ -48,7 +48,7 @@ DisplayWarningControllerMsg()
 		CFont::SetJustifyOn();
 		CFont::SetRightJustifyOff();
 		CFont::SetBackGroundOnlyTextOn();
-		CFont::SetWrapx(SCRW-X(40.0f)); // 600.0f
+		CFont::SetWrapx(FR(40.0f)); // 600.0f
 		
 		CPlaceableShText text;
 		text.SetPosition(X(60.0f), Y(180.0f), false); // 205.714294
@@ -120,9 +120,9 @@ DisplayMemoryCardAccessMsg(wchar *msg, CRGBA const &color)
 	CFont::SetJustifyOn();
 	CFont::SetRightJustifyOff();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetWrapx(SCRW-X(90.0f)); // 550.0f
+	CFont::SetWrapx(FR(90.0f)); // 550.0f
 	CFont::SetCentreOn();
-	CFont::SetCentreSize(SCRW-X(180.0f)); // 460.0f
+	CFont::SetCentreSize(FR(180.0f)); // 460.0f
 	
 	CPlaceableShText text;
 	

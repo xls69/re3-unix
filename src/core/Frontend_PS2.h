@@ -199,7 +199,7 @@ public:
 	int32 m_nPrefsWidth = 640;
 	int32 m_nPrefsHeight = 480;
 	int32 m_nPrefsDepth = 32;
-	int32 m_nPrefsWindowed = 1;
+	int32 m_nPrefsWindowed = 0;//1;
 	int32 m_nPrefsSubsystem;
 	int32 m_nSelectedScreenMode;
 #endif

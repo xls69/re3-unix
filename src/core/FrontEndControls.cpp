@@ -1,3 +1,4 @@
+#define NO_SWITCHABLE_SCALING
 #include "common.h"
 #include "main.h"
 #include "Timer.h"
@@ -6,8 +7,12 @@
 #include "Font.h"
 #include "FrontEndControls.h"
 
-#define X SCREEN_SCALE_X
-#define Y(x) SCREEN_SCALE_Y(float(x)*(float(DEFAULT_SCREEN_HEIGHT)/float(SCREEN_HEIGHT_PAL)))
+#define Y_PAL_TO_NTSC(x) (float(x)*(float(SCREEN_HEIGHT_NTSC)/float(SCREEN_HEIGHT_PAL)))
+#define Y_NTSC_TO_DEFAULT(x) (float(x)*(float(DEFAULT_SCREEN_HEIGHT)/float(SCREEN_HEIGHT_NTSC)))
+
+#define X(x) SCREEN_SCALE_X(x)
+#define Y(x) SCREEN_SCALE_Y(Y_NTSC_TO_DEFAULT(x))
+#define YF(x) Y(Y_PAL_TO_NTSC(x))
 
 void
 CPlaceableShText::Draw(float x, float y)

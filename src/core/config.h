@@ -169,6 +169,7 @@ enum Config {
 #	define VU_COLLISION
 #	define ANIM_COMPRESSION
 #	define PS2_MENU
+#	define PS2_HUD
 #elif defined GTA_PC
 #	define EXTERNAL_3D_SOUND
 #	define AUDIO_REFLECTIONS
@@ -352,7 +353,7 @@ enum Config {
 #define FIX_RADAR			// use radar size from early version before R* broke it
 // #define XBOX_SUBTITLES	// the infamous outlines
 #define RADIO_OFF_TEXT
-#define PC_MENU
+//#define PC_MENU
 
 #ifndef PC_MENU
 #	define PS2_MENU

@@ -1,3 +1,4 @@
+#define NO_SWITCHABLE_SCALING
 #include "common.h"
 #ifdef PS2_MENU
 #include "platform.h"
@@ -30,22 +31,34 @@
 wchar MemoryCard_FileNames[8][100+1];
 CMenuManager FrontEndMenuManager;
 
-// TEMP: put into header
-bool DoRWStuffStartOfFrame_Horizon(int16 TopRed, int16 TopGreen, int16 TopBlue, int16 BottomRed, int16 BottomGreen, int16 BottomBlue, int16 Alpha);
-bool DoRWStuffStartOfFrame(int16 TopRed, int16 TopGreen, int16 TopBlue, int16 BottomRed, int16 BottomGreen, int16 BottomBlue, int16 Alpha);
-void DoRWStuffEndOfFrame(void);
+#ifdef GTA_PC
+#define MENU_WIDTH  SCREEN_SCALE_X(float(DEFAULT_SCREEN_WIDTH))
+#define MENU_HEIGHT SCREEN_SCALE_Y(float(DEFAULT_SCREEN_HEIGHT))
+#else
+#define MENU_WIDTH  SCREEN_WIDTH
+#define MENU_HEIGHT SCREEN_HEIGHT
+#endif
+
+#define MENU_SLIDE_X 700.0f
+#define MENU_SLIDE_Y 500.0f
 
 
-#define SCRW SCREEN_WIDTH
-#define SCRH SCREEN_HEIGHT
-//#define X SCREEN_STRETCH_X
-//#define Y SCREEN_STRETCH_Y
-#define X SCREEN_SCALE_X
-#define Y SCREEN_SCALE_Y
+#define Y_PAL_TO_NTSC(x) (float(x)*(float(SCREEN_HEIGHT_NTSC)/float(SCREEN_HEIGHT_PAL)))
+#define Y_NTSC_TO_DEFAULT(x) (float(x)*(float(DEFAULT_SCREEN_HEIGHT)/float(SCREEN_HEIGHT_NTSC)))
 
-#define YF(x) Y(float(x)*(float(DEFAULT_SCREEN_HEIGHT)/float(SCREEN_HEIGHT_PAL)))
-//#define X(x) ((x)/640.0f*SCRW)
-//#define Y(y) ((y)/448.0f*SCRH)
+#define X(x) SCREEN_SCALE_X(x)
+#define Y(x) SCREEN_SCALE_Y(Y_NTSC_TO_DEFAULT(x))
+#define YF(x) Y(Y_PAL_TO_NTSC(x))
+
+#ifdef GTA_PC
+#define CENTER_X(x) (float(SCREEN_WIDTH)/2-(float(x)/2))
+#define FR(x) (CENTER_X(MENU_WIDTH) + MENU_WIDTH - SCREEN_SCALE_X((x)))
+#define FL(x) (CENTER_X(MENU_WIDTH) + SCREEN_SCALE_X((x)))
+#else
+#define CENTER_X(x) 0.0f
+#define FR(x) SCREEN_SCALE_FROM_RIGHT(x)
+#define FL(x) SCREEN_SCALE_X((x))
+#endif
 
 
 static float MENU_TEXT_SIZE_X = 0.644f;
@@ -299,9 +312,9 @@ CMenuManager::LoadAllTextures(void)
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 	CSprite2d *splash = LoadSplash(nil);
 	if(splash)
-		splash->Draw(CRect(0.0f, 0.0f, SCRW, SCRH), BACKGROUND_SPLASH_COLOR);
+		splash->Draw(CRect(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_SPLASH_COLOR);
 	else // doesn't exist!!
-		CHud::Sprites[19].Draw(CRect(0.0f, 0.0f, SCRW, SCRH), BACKGROUND_SPLASH_COLOR);
+		CHud::Sprites[19].Draw(CRect(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_SPLASH_COLOR);
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERMIPNEAREST);
 	DoRWStuffEndOfFrame();
 
@@ -1087,7 +1100,8 @@ CMenuManager::InitialiseMenuContents(void)
 		static wchar StringsToDisplay[NUMPREVIOUSBRIEFS][256];
 
 		CRGBA newColor;
-		int32 brierY = 36;
+		//int32 brierY = 36; // pal
+		int32 brierY = 32;
 
 		for ( int32 i = NUMPREVIOUSBRIEFS-1; i >= 0; i-- )
 		{
@@ -1109,8 +1123,9 @@ CMenuManager::InitialiseMenuContents(void)
 					newColor.g /= 2;
 					newColor.b /= 2;
 				}
-				MenuBriefs_1.AddText(StringsToDisplay[i], 0.0f, YF((float)brierY), newColor, 0);
-				brierY += 54;
+				MenuBriefs_1.AddText(StringsToDisplay[i], 0.0f, Y((float)brierY), newColor, 0);
+				//brierY += 54; // PAL
+				brierY += 48;
 			}
 		}
 
@@ -1229,8 +1244,8 @@ CMenuManager::InitialiseMenuContents(void)
 		if (CStats::HighestScores[4] > 0)
 			STAT_LINE("FEST_H4", &CStats::HighestScores[4], 0, nil);
 
-		STAT_LINE("FESTDFM", &CStats::DistanceTravelledOnFoot, 0, nil);
-		STAT_LINE("FESTDCM", &CStats::DistanceTravelledInVehicle, 0, nil);
+		STAT_LINE("FESTDFM", &CStats::DistanceTravelledOnFoot, 0, nil);	// float
+		STAT_LINE("FESTDCM", &CStats::DistanceTravelledInVehicle, 0, nil); // float
 		STAT_LINE("MMRAIN", &CStats::mmRain, 0, nil);
 		nTemp = (int32)CStats::MaximumJumpDistance;
 		STAT_LINE("MXCARDM", &nTemp, 0, nil);
@@ -1278,7 +1293,7 @@ CMenuManager::InitialiseMenuContents(void)
 		UnicodeStrcpy(pStatLine, CStats::FindCriminalRatingString());
 		UnicodeStrcat(pStatLine, urating);
 
-		MenuStats_2.AddText(pStatLine, X(MenuStats_1.m_width), 0.0f, CRIM_RATING_TEXT_COLOR, 1);
+		MenuStats_2.AddText(pStatLine, MenuStats_1.m_width, 0.0f, CRIM_RATING_TEXT_COLOR, 1);
 
 		MenuSaveZoneSG_1.SetMenuSelection(1);
 		MenuSaveZoneFC_1.SetMenuSelection(1);
@@ -1335,6 +1350,13 @@ CMenuManager::InitialiseMenuContentsAfterLoadingGame(void)
 		m_bInitialised = false;
 		bFrontEnd_ReloadObrTxtGxt = true;
 	}
+#ifdef GTA_PC
+	#ifdef LOAD_INI_SETTINGS
+	if (LoadINISettings()) {
+		LoadINIControllerSettings();
+	}
+	#endif
+#endif
 }
 
 void
@@ -1392,11 +1414,11 @@ CMenuManager::DrawFrontEndNormal(void)
 
 		switch ( m_nSlidingDir )
 		{
-			case SLIDE_TO_RIGHT:  m_position.x =   slide * X(700.0f);  break;
-			case SLIDE_TO_TOP:    m_position.y = -(slide * Y(500.0f)); break;
-			case SLIDE_TO_LEFT:   m_position.x = -(slide * X(700.0f)); break;
-			case SLIDE_TO_BOTTOM: m_position.y =   slide * Y(500.0f);  break;
-			default:              m_position.y =   slide * Y(500.0f);  break;
+			case SLIDE_TO_RIGHT:  m_position.x =   slide * X(MENU_SLIDE_X);  break;
+			case SLIDE_TO_TOP:    m_position.y = -(slide * Y(MENU_SLIDE_Y)); break;
+			case SLIDE_TO_LEFT:   m_position.x = -(slide * X(MENU_SLIDE_X)); break;
+			case SLIDE_TO_BOTTOM: m_position.y =   slide * Y(MENU_SLIDE_Y);  break;
+			default:              m_position.y =   slide * Y(MENU_SLIDE_Y);  break;
 		}
 	}
 
@@ -1409,13 +1431,17 @@ CMenuManager::DrawFrontEndNormal(void)
 
 		switch ( m_nSlidingDir )
 		{
-			case SLIDE_TO_TOP:    m_position.y =   (1.0f - slide) * Y(500.0f);  break;
-			case SLIDE_TO_RIGHT:  m_position.x =   (1.0f - slide) * X(700.0f);  break;
-			case SLIDE_TO_LEFT:   m_position.x =   (1.0f - slide) * X(700.0f);  break;
-			case SLIDE_TO_BOTTOM: m_position.y = -((1.0f - slide) * Y(500.0f)); break;
-			default:              m_position.y = -((1.0f - slide) * Y(500.0f)); break;
+			case SLIDE_TO_TOP:    m_position.y =   (1.0f - slide) * Y(MENU_SLIDE_Y);  break;
+			case SLIDE_TO_RIGHT:  m_position.x =   (1.0f - slide) * X(MENU_SLIDE_X);  break;
+			case SLIDE_TO_LEFT:   m_position.x =   (1.0f - slide) * X(MENU_SLIDE_X);  break;
+			case SLIDE_TO_BOTTOM: m_position.y = -((1.0f - slide) * Y(MENU_SLIDE_Y)); break;
+			default:              m_position.y = -((1.0f - slide) * Y(MENU_SLIDE_Y)); break;
 		}
 	}
+	
+#ifdef GTA_PC
+	m_position.x += CENTER_X(MENU_WIDTH);
+#endif
 
 	if ( m_someAlpha < 255 )
 		m_fade = m_someAlpha;
@@ -1426,26 +1452,26 @@ CMenuManager::DrawFrontEndNormal(void)
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 	CSprite2d *splash = LoadSplash(nil);
 	if(splash)
-		splash->Draw(CRect(0.0f, 0.0f, SCRW, SCRH), BACKGROUND_SPLASH_COLOR);
+		splash->Draw(CRect(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_SPLASH_COLOR);
 	else
 		// doesn't exist!!
-		CHud::Sprites[19].Draw(CRect(0.0f, 0.0f, SCRW, SCRH), BACKGROUND_SPLASH_COLOR);
+		CHud::Sprites[19].Draw(CRect(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_SPLASH_COLOR);
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERMIPNEAREST);
 
 	/* Draw main panel */
 	RwRenderStateSet(rwRENDERSTATETEXTUREADDRESS, (void*)rwTEXTUREADDRESSCLAMP);
 	CRGBA panelColor(255, 255, 255, m_someAlpha);
 	m_sprites[FE2_MAINPANEL_UL].Draw(
-		CRect(m_position.x, m_position.y, m_position.x+SCRW/2.0f, m_position.y+SCRH/2.0f),
+		CRect(m_position.x, m_position.y, m_position.x+MENU_WIDTH/2.0f, m_position.y+MENU_HEIGHT/2.0f),
 		panelColor);
 	m_sprites[FE2_MAINPANEL_UR].Draw(
-		CRect(m_position.x+SCRW/2.0f, m_position.y, m_position.x+SCRW, m_position.y+SCRH/2.0f),
+		CRect(m_position.x+MENU_WIDTH/2.0f, m_position.y, m_position.x+MENU_WIDTH, m_position.y+MENU_HEIGHT/2.0f),
 		panelColor);
 	m_sprites[FE2_MAINPANEL_DL].Draw(
-		CRect(m_position.x, m_position.y+SCRH/2.0f, m_position.x+SCRW/2.0f, m_position.y+SCRH),
+		CRect(m_position.x, m_position.y+MENU_HEIGHT/2.0f, m_position.x+MENU_WIDTH/2.0f, m_position.y+MENU_HEIGHT),
 		panelColor);
 	m_sprites[FE2_MAINPANEL_DR].Draw(
-		CRect(m_position.x+SCRW/2.0f, m_position.y+SCRH/2.0f, m_position.x+SCRW, m_position.y+SCRH),
+		CRect(m_position.x+MENU_WIDTH/2.0f, m_position.y+MENU_HEIGHT/2.0f, m_position.x+MENU_WIDTH, m_position.y+MENU_HEIGHT),
 		panelColor);
 
 	/* Draw icon backdrop */
@@ -1487,8 +1513,11 @@ CMenuManager::DrawFrontEndNormal(void)
 	case PAGE_STATS:
 	case PAGE_LOAD:
 	case PAGE_CONTROLS:
+#ifdef GTA_PS2
 		sprite = FE_ICONSTATS;	// PS2 has the same texture for stats and brief
-		//sprite = FE_ICONBRIEF;
+#else
+		sprite = FE_ICONBRIEF;
+#endif
 		break;
 	case PAGE_BRIEFS:
 		sprite = FE_ICONBRIEF;
@@ -1568,7 +1597,7 @@ CMenuManager::DrawFrontEndNormal(void)
 	case PAGE_LANGUAGE: posX = 484.0f; break;
 	}
 	// PAL has 465 for 407 here - and actually 406 seems right
-	m_sprites[FE2_TABACTIVE].Draw(CRect_SZ(m_position.x+X(posX), m_position.y+YF(465.0f), X(128.0f), Y(32.0f)), CRGBA(255, 255, 255, m_someAlpha));
+	m_sprites[FE2_TABACTIVE].Draw(CRect_SZ(m_position.x+X(posX), m_position.y+Y(407.0f)/*YF(465.0f)*/, X(128.0f), Y(32.0f)), CRGBA(255, 255, 255, m_someAlpha));
 
 	/* Draw page title */
 	posX = m_position.x + X(592.0f);
@@ -1584,7 +1613,7 @@ CMenuManager::DrawFrontEndNormal(void)
 	CFont::SetRightJustifyWrap(0.0f);
 	CFont::SetRightJustifyOn();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetWrapx(SCRW-X(40.0f)); // 600.0f
+	CFont::SetWrapx(FR(40.0f)); // 600.0f
 	const char *key = nil;
 	switch(m_currentPage)
 	{
@@ -1612,7 +1641,7 @@ CMenuManager::DrawFrontEndNormal(void)
 	CFont::SetJustifyOn();
 	CFont::SetRightJustifyOff();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetWrapx(SCRW-X(40.0f)); // 600.0f
+	CFont::SetWrapx(FR(40.0f)); // 600.0f
 	CFont::SetColor(CRGBA(16, 16, 16, m_someAlpha));
 	switch(m_currentPage)
 	{
@@ -1671,7 +1700,7 @@ CMenuManager::DrawFrontEndNormal(void)
 	CFont::SetCentreOn();
 	CFont::SetRightJustifyOff();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetWrapx(SCRW-X(40.0f)); // 600.0f
+	CFont::SetWrapx(FR(40.0f)); // 600.0f
 
 	switch ( m_pageState )
 	{
@@ -1759,13 +1788,13 @@ CMenuManager::DrawFrontEndNormal(void)
 	CFont::SetJustifyOn();
 	CFont::SetRightJustifyOff();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetWrapx(SCRW-X(40.0f)); // 600.0f
-	CFont::SetRightJustifyWrap(X(38.0f));
+	CFont::SetWrapx(FR(40.0f)); // 600.0f
+	CFont::SetRightJustifyWrap(FL(40.0f - 2.0f));
 
 	if(m_currentPage == PAGE_LANGUAGE)
 	{
 		CFont::SetCentreOn();
-		CFont::SetCentreSize(SCRW-X(40.0f)); // 600.0f
+		CFont::SetCentreSize(FR(40.0f)); // 600.0f
 	}
 
 	if ( m_nEndPauseTimer != 0 )
@@ -1778,7 +1807,8 @@ CMenuManager::DrawFrontEndNormal(void)
 				break;
 
 			default:
-				CFont::SetWrapx(X(1200.0f));
+				//CFont::SetWrapx(X(1200.0f)); // -560 ?
+				CFont::SetWrapx(FR(-560.0f)); // -560 ?
 				break;
 		}
 	}
@@ -1836,7 +1866,7 @@ CMenuManager::DrawFrontEndSaveZone(void)
 
 	m_fade = 255;
 
-	CSprite2d::DrawRect(CRect(X(50.0f), Y(50.0f), X(590.0f), Y(398.0f)), CRGBA(0, 0, 0, 175)); //CRect(50.0f, 57.142f, 590.0f, 454.857147f)
+	CSprite2d::DrawRect(CRect(CENTER_X(MENU_WIDTH) + X(50.0f), Y(50.0f), CENTER_X(MENU_WIDTH) + MENU_WIDTH - X(50.0f), MENU_HEIGHT - Y(50.0f)), CRGBA(0, 0, 0, 175)); //CRect(50.0f, 57.142f, 590.0f, 454.857147f)
 
 	CFont::SetFontStyle(FONT_BANK);
 	CFont::SetBackgroundOff();
@@ -1846,13 +1876,13 @@ CMenuManager::DrawFrontEndSaveZone(void)
 	CFont::SetJustifyOn();
 	CFont::SetRightJustifyOff();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetRightJustifyWrap(X(70.0f));
-	CFont::SetWrapx(SCRW-X(70.0f)); // 570.0f
+	CFont::SetRightJustifyWrap(FL(70.0f));
+	CFont::SetWrapx(FR(70.0f)); // 570.0f
 
 	if ( pActiveMenuPage )
 	{
 		pActiveMenuPage->SetAlpha(m_fade);
-		pActiveMenuPage->Draw(CRGBA(rgbaATC.r, rgbaATC.g, rgbaATC.b, m_fade), TITLE_TEXT_COLOR, 0.0f, 0.0f);
+		pActiveMenuPage->Draw(CRGBA(rgbaATC.r, rgbaATC.g, rgbaATC.b, m_fade), TITLE_TEXT_COLOR, CENTER_X(MENU_WIDTH)+0.0f, 0.0f);
 	}
 
 
@@ -1865,7 +1895,7 @@ CMenuManager::DrawFrontEndSaveZone(void)
 	CFont::SetJustifyOn();
 	CFont::SetRightJustifyOff();
 	CFont::SetBackGroundOnlyTextOn();
-	CFont::SetWrapx(SCRW-X(40.0f)); //600.0f
+	CFont::SetWrapx(FR(40.0f)); //600.0f
 	CFont::SetColor(TEXT_COLOR);
 
 	wchar *text;
@@ -1880,7 +1910,7 @@ CMenuManager::DrawFrontEndSaveZone(void)
 		text = TheText.Get("FEDS_SE"); // / button - SELECT
 	}
 
-	CFont::PrintString(X(180.0f), Y(376.0f), text); // 180.0f, 429.714294f
+	CFont::PrintString(CENTER_X(MENU_WIDTH) + X(180.0f), Y(376.0f), text); // 180.0f, 429.714294f
 	CFont::DrawFonts();
 
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
@@ -2014,7 +2044,7 @@ CMenuManager::DrawMemoryCardStartUpMenus()
 
 		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 		CSprite2d *splash = LoadSplash("splash1");
-		splash->Draw(CRect(0.0f, 0.0f, SCRW, SCRH), BACKGROUND_SPLASH_COLOR);
+		splash->Draw(CRect(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_SPLASH_COLOR);
 		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERNEAREST);
 
 		SetRandomActiveTextlineColor(1);
@@ -2027,9 +2057,9 @@ CMenuManager::DrawMemoryCardStartUpMenus()
 		CFont::SetJustifyOn();
 		CFont::SetRightJustifyOff();
 		CFont::SetBackGroundOnlyTextOn();
-		CFont::SetWrapx(SCRW-X(60.0f)); // 580.0f
+		CFont::SetWrapx(FR(60.0f)); // 580.0f
 		CFont::SetCentreOn();
-		CFont::SetCentreSize(SCRW-X(120.0f)); // 520.0f
+		CFont::SetCentreSize(FR(120.0f)); // 520.0f
 
 		MCMenu.Draw(col, TITLE_TEXT_COLOR, 0.0f, 0.0f);
 		CFont::DrawFonts();
@@ -2041,7 +2071,7 @@ CMenuManager::DrawMemoryCardStartUpMenus()
 		CFont::SetJustifyOn();
 		CFont::SetRightJustifyOff();
 		CFont::SetBackGroundOnlyTextOn();
-		CFont::SetWrapx(SCRW-X(60.0f)); // 580.0f
+		CFont::SetWrapx(FR(60.0f)); // 580.0f
 		CFont::SetColor(TEXT_COLOR);
 
 
@@ -2071,7 +2101,7 @@ CMenuManager::DrawMemoryCardStartUpMenus()
 
 		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 		CSprite2d *splash = LoadSplash("splash1");
-		splash->Draw(CRect(0.0f, 0.0f, SCRW, SCRH), BACKGROUND_SPLASH_COLOR);
+		splash->Draw(CRect(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_SPLASH_COLOR);
 		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERNEAREST);
 
 		DoRWStuffEndOfFrame();
@@ -2149,7 +2179,7 @@ CMenuManager::WorkOutMenuState(uint8 bExit)
 						case SLIDE_TO_RIGHT: m_nSlidingDir = SLIDE_TO_BOTTOM; break;
 					}
 
-					m_position.y = Y(500.0f); // 571.428589f;
+					m_position.y = Y(MENU_SLIDE_Y); // 571.428589f;
 				}
 			}
 			else
@@ -2168,11 +2198,11 @@ CMenuManager::WorkOutMenuState(uint8 bExit)
 
 				switch ( m_nSlidingDir )
 				{
-					case SLIDE_TO_RIGHT:  m_position.y = Y(612.5f); break;
-					case SLIDE_TO_LEFT:   m_position.y = Y(612.5f); break;
-					case SLIDE_TO_BOTTOM: m_position.y = Y(500.0f); break;
-					case SLIDE_TO_TOP:    m_position.y = Y(500.0f); break;
-					default:              m_position.y = Y(500.0f); break;
+					case SLIDE_TO_RIGHT:  m_position.y = Y(MENU_SLIDE_X - 87.5f); break;
+					case SLIDE_TO_LEFT:   m_position.y = Y(MENU_SLIDE_X - 87.5f); break;
+					case SLIDE_TO_BOTTOM: m_position.y = Y(MENU_SLIDE_Y);         break;
+					case SLIDE_TO_TOP:    m_position.y = Y(MENU_SLIDE_Y);         break;
+					default:              m_position.y = Y(MENU_SLIDE_Y);         break;
 				}
 
 				if ( m_currentPage == PAGE_CONTROLS || m_currentPage == PAGE_BRIEFS )
@@ -2185,9 +2215,12 @@ CMenuManager::WorkOutMenuState(uint8 bExit)
 						case SLIDE_TO_RIGHT: m_nSlidingDir = SLIDE_TO_BOTTOM; break;
 					}
 
-					m_position.y = Y(500.0f); //571.428589f
+					m_position.y = Y(MENU_SLIDE_Y); //571.428589f
 				}
 			}
+#ifdef GTA_PC
+			m_position.x += CENTER_X(MENU_WIDTH);
+#endif
 		}
 	}
 
