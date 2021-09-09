@@ -12,6 +12,13 @@ class CTimer
 	static float ms_fTimeScale;
 	static float ms_fTimeStep;
 	static float ms_fTimeStepNonClipped;
+#ifdef GTA_PS2
+	static int32 m_snFrameTimeInCycles;
+	static int32 m_snFrameTimeInScanLines;
+	static int32 m_otherCount;
+	static uint32 m_AnimationFrames;
+#endif
+
 #ifdef FIX_BUGS
 	static uint32 m_LogicalFrameCounter;
 	static uint32 m_LogicalFramesPassed;
@@ -50,8 +57,13 @@ public:
 	static void Initialise(void);
 	static void Shutdown(void);
 	static void Update(void);
+#ifdef GTA_PS2
+	static void Suspend(void) { Stop(); }
+	static void Resume(void) { Update(); }
+#else
 	static void Suspend(void);
 	static void Resume(void);
+#endif
 	static uint32 GetCyclesPerMillisecond(void);
 	static uint32 GetCurrentTimeInCycles(void);
 	static bool GetIsSlowMotionActive(void);
@@ -66,8 +78,13 @@ public:
 #ifdef FIX_BUGS
 	static float GetDefaultTimeStep(void) { return 50.0f / 30.0f; }
 	static float GetTimeStepFix(void) { return GetTimeStep() / GetDefaultTimeStep(); }
+#ifdef GTA_PS2
+	static uint32 GetLogicalFrameCounter(void) { return m_FrameCounter; }
+	static uint32 GetLogicalFramesPassed(void) { return 1; }
+#else
 	static uint32 GetLogicalFrameCounter(void) { return m_LogicalFrameCounter; }
 	static uint32 GetLogicalFramesPassed(void) { return m_LogicalFramesPassed; }
+#endif
 #endif
 };
 

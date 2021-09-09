@@ -6,6 +6,141 @@
 #include "Record.h"
 #include "Timer.h"
 
+#ifdef GTA_PS2
+
+#include <libpc.h>
+
+uint32 CTimer::m_snTimeInMilliseconds;
+uint32 CTimer::m_snTimeInMillisecondsNonClipped;
+uint32 CTimer::m_snTimeInMillisecondsPauseMode;
+uint32 CTimer::m_snPreviousTimeInMilliseconds;
+int32 CTimer::m_snFrameTimeInCycles;
+int32 CTimer::m_snFrameTimeInScanLines;
+int32 CTimer::m_otherCount;
+float CTimer::ms_fTimeScale;
+float CTimer::ms_fTimeStep;
+float CTimer::ms_fTimeStepNonClipped;
+uint32 CTimer::m_FrameCounter;
+uint32 CTimer::m_AnimationFrames;
+bool CTimer::m_UserPause;
+bool CTimer::m_CodePause;
+
+volatile unsigned long sweHighCount;
+int skyTimerHandlerHid = -1;
+
+#define CYCLES_PER_MS 294912
+
+void    
+CTimer::Initialise(void)
+{
+	int control;
+
+	m_snTimeInMilliseconds = 1;
+	ms_fTimeScale = 1.0f;
+	ms_fTimeStep = 1.0f;
+	m_UserPause = false;
+	m_CodePause = false;
+	m_snPreviousTimeInMilliseconds = 0;
+	m_snTimeInMillisecondsNonClipped = 0;
+	m_snFrameTimeInCycles = 0;
+	m_snFrameTimeInScanLines = 0;
+
+	control = SCE_PC0_CPU_CYCLE | (SCE_PC_U0|SCE_PC_S0|SCE_PC_K0|SCE_PC_EXL0);
+	control |= SCE_PC1_DCACHE_MISS | (SCE_PC_U1);
+	control |= SCE_PC_CTE;
+
+	DI();
+	scePcStart(control, 0, 0);
+	EI();
+
+	DI();
+	scePcStop();
+	EI();
+
+	m_FrameCounter = 0;
+	DMAudio.ResetTimers(m_snPreviousTimeInMilliseconds);
+}
+
+void
+CTimer::Shutdown(void)
+{
+	scePcStop();
+}
+
+#define MS_PER_STEP (1000/50)
+
+void
+CTimer::Update(void)
+{
+	int control;
+
+	m_snPreviousTimeInMilliseconds = m_snTimeInMilliseconds;
+	m_snFrameTimeInCycles = scePcGetCounter0();
+	m_otherCount = scePcGetCounter1();
+	m_snTimeInMillisecondsPauseMode += m_snFrameTimeInCycles / CYCLES_PER_MS;
+
+	if(m_UserPause || m_CodePause)
+		m_snFrameTimeInCycles = 0;
+
+	m_snTimeInMilliseconds += ms_fTimeScale * m_snFrameTimeInCycles / CYCLES_PER_MS;
+	m_snTimeInMillisecondsNonClipped += ms_fTimeScale * m_snFrameTimeInCycles / CYCLES_PER_MS;
+	ms_fTimeStep = ms_fTimeScale * m_snFrameTimeInCycles / (MS_PER_STEP * CYCLES_PER_MS);
+	if(ms_fTimeStep < 0.5f && !m_UserPause && !m_CodePause)
+		ms_fTimeStep = 0.5f;
+	ms_fTimeStepNonClipped = ms_fTimeStep;
+
+	control = SCE_PC0_CPU_CYCLE | (SCE_PC_U0|SCE_PC_S0|SCE_PC_K0|SCE_PC_EXL0);
+	control |= SCE_PC1_DCACHE_MISS | (SCE_PC_U1);
+	control |= SCE_PC_CTE;
+
+	DI();
+	scePcStart(control, 0, 0);
+	EI();
+
+	m_FrameCounter++;
+
+	if(!CRecordDataForGame::IsPlayingBack()){
+		if(ms_fTimeStep > 3.0f)
+			ms_fTimeStep = 3.0f;
+		if(m_snTimeInMilliseconds > m_snPreviousTimeInMilliseconds + 3*MS_PER_STEP)
+			m_snTimeInMilliseconds = m_snPreviousTimeInMilliseconds + 3*MS_PER_STEP;
+	}
+	if(CRecordDataForGame::IsRecording()){
+		ms_fTimeStep = 1.0f;
+		m_snTimeInMilliseconds = m_snPreviousTimeInMilliseconds + 1000/60;
+	}
+}
+
+bool CTimer::GetIsSlowMotionActive(void)
+{
+	return ms_fTimeScale < 1.0f;
+}
+
+void CTimer::Stop(void)
+{
+	DI();
+	scePcStop();
+	EI();
+}
+
+void CTimer::StartUserPause(void)
+{
+	m_UserPause = true;
+	m_AnimationFrames = 12;
+}
+
+void CTimer::EndUserPause(void)
+{
+	m_UserPause = false;
+	m_AnimationFrames = 12;
+}
+
+// these are actually inlined, but I don't want to include libpc everywhere
+uint32 CTimer::GetCyclesPerMillisecond(void) { return CYCLES_PER_MS; }
+uint32 CTimer::GetCurrentTimeInCycles(void) { return scePcGetCounter0(); }
+
+#else
+
 uint32 CTimer::m_snTimeInMilliseconds;
 uint32 CTimer::m_snTimeInMillisecondsPauseMode = 1;
 uint32 CTimer::m_snTimeInMillisecondsNonClipped;
@@ -327,3 +462,4 @@ uint32 CTimer::GetCyclesPerFrame()
 	return 20;
 }
 
+#endif

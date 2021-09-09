@@ -138,6 +138,10 @@ CFileLoader::LoadLevel(const char *filename)
 void
 CFileLoader::LoadCollisionFromDatFile(int currlevel)
 {
+#if GTA_VERSION <= GTA3_PS2_160
+	// actually not wrapped in this function, but what the hell
+	LoadCollisionFile(CCollision::ms_pColFiles[currlevel]);
+#else
 	int fd;
 	char *line;
 
@@ -157,6 +161,7 @@ CFileLoader::LoadCollisionFromDatFile(int currlevel)
 	}
 
 	CFileMgr::CloseFile(fd);
+#endif 
 }
 
 char*

@@ -2,6 +2,7 @@
 #include <rpmatfx.h>
 
 #include "RwHelper.h"
+#include "Lights.h"
 #include "General.h"
 #include "NodeName.h"
 #include "TxdStore.h"
@@ -1015,7 +1016,9 @@ CVehicleModelInfo::SetEnvironmentMapCB(RpAtomic *atomic, void *data)
 		RpMatFXAtomicEnableEffects(atomic);
 #ifdef GTA_PS2
 		if(!initialised){
-			SetupPS2ManagerLightingCallback(RpAtomicGetInstancePipeline(atomic));
+			RxPipeline *pipe;
+			RpAtomicGetInstancePipeline(atomic, &pipe);
+			SetupPS2ManagerLightingCallback(pipe);
 			initialised = true;
 		}
 #endif

@@ -26,7 +26,8 @@ CDummyPool *CPools::ms_pDummyPool;
 CAudioScriptObjectPool *CPools::ms_pAudioScriptObjectPool;
 
 #ifdef GTA_PS2	// or USE_CUSTOM_ALLOCATOR
-#define CHECKMEM(msg) CMemCheck::AllocateMemCheckBlock(msg)
+//#define CHECKMEM(msg) CMemCheck::AllocateMemCheckBlock(msg)
+#define CHECKMEM(msg)	// TODO(PS2) put this somewhere, even though it's empty
 #else
 #define CHECKMEM(msg)
 #endif
