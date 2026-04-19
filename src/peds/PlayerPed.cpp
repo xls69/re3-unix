@@ -1109,7 +1109,7 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 					SetLookTimer(INT32_MAX); // removing this makes head move for real, but I experinced some bugs.
 #endif
 					((CPlayerPed*)this)->m_fFPSMoveHeading = TheCamera.Find3rdPersonQuickAimPitch();
-					if (m_nPedState != PED_ATTACK && m_nPedState != PED_AIM_GUN) {
+					if (m_nPedState != PED_ATTACK && m_nPedState != PED_AIM_GUN && m_nPedState != PED_FIGHT) {
 						// This is a seperate ped state just for pointing gun. Used for target button
 						SetPointGunAt(nil);
 					}

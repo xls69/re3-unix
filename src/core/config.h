@@ -6,6 +6,15 @@
 #define VANILLA_DEFINES
 #endif
 
+#ifdef CUSTOM
+	#define DEBUGMENU
+	#define MASTER
+	#define STABLE
+	#define NO_LIGHT_CUBES
+	#define HOOD_DETACH
+	#define MODERN_KEYMAP
+#endif
+
 enum Config {
 	NUMPLAYERS = 1,	// 4 on PS2
 
@@ -176,8 +185,10 @@ enum Config {
 #	ifndef GTA_HANDHELD
 #		define PC_PLAYER_CONTROLS	// mouse player/cam mode
 #	endif
+#ifndef STABLE
 #	define GTA_REPLAY
 #	define GTA_SCENE_EDIT
+#endif
 #	define PC_MENU
 #	define GTA_PC_CONTROLS	// enables keyboard and mouse. currently GTA_PC and a few other defines will not work without this
 #elif defined GTA_XBOX
@@ -303,7 +314,7 @@ enum Config {
 #define USE_TXD_CDIMAGE		// generate and load textures from txd.img
 #define PS2_ALPHA_TEST		// emulate ps2 alpha test 
 #define IMPROVED_VIDEOMODE	// save and load videomode parameters instead of a magic number
-#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
+//#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
 #ifdef DISABLE_LOADING_SCREEN
 // enable the PC splash
 #undef RANDOMSPLASH
@@ -314,8 +325,10 @@ enum Config {
 #ifdef LIBRW
 #define EXTENDED_COLOURFILTER		// more options for colour filter (replaces mblur)
 #define EXTENDED_PIPELINES		// custom render pipelines (includes Neo)
+#ifndef STABLE
 #define SCREEN_DROPLETS			// neo water droplets
 #define NEW_RENDERER		// leeds-like world rendering, needs librw
+#endif
 #endif
 
 #define FIX_SPRITES	// fix sprites aspect ratio(moon, coronas, particle etc)
@@ -344,7 +357,7 @@ enum Config {
 #define BUTTON_ICONS // use textures to show controller buttons
 
 // Hud, frontend and radar
-//#define PS2_HUD
+#define PS2_HUD
 #define HUD_ENHANCEMENTS	// Adjusts some aspects to make the HUD look/behave a little bit better.
 // #define BETA_SLIDING_TEXT
 #define TRIANGULAR_BLIPS	// height indicating triangular radar blips, as in VC
@@ -366,7 +379,7 @@ enum Config {
 #	define TRIANGLE_BACK_BUTTON
 //#	define CIRCLE_BACK_BUTTON
 //#	define PS2_LIKE_MENU	// An effort to recreate PS2 menu, cycling through tabs, different bg etc.
-//#	define PS2_SAVE_DIALOG		// PS2 style save dialog with transparent black box
+#	define PS2_SAVE_DIALOG		// PS2 style save dialog with transparent black box
 #	define CUSTOM_FRONTEND_OPTIONS
 
 #	ifdef CUSTOM_FRONTEND_OPTIONS
@@ -374,9 +387,13 @@ enum Config {
 #		define GRAPHICS_MENU_OPTIONS // otherwise Display settings will be scrollable
 #		define NO_ISLAND_LOADING  // disable loadscreen between islands via loading all island data at once, consumes more memory and CPU
 #		define CUTSCENE_BORDERS_SWITCH
+#ifndef STABLE
 #		define MULTISAMPLING		// adds MSAA option
+#endif
 #		define INVERT_LOOK_FOR_PAD // add bInvertLook4Pad from VC
+#ifndef STABLE
 #		define PED_CAR_DENSITY_SLIDERS
+#endif
 #	endif
 #endif
 
@@ -384,7 +401,7 @@ enum Config {
 #define USE_DEBUG_SCRIPT_LOADER	// Loads main.scm by default. Hold R for main_freeroam.scm and D for main_d.scm
 #define USE_MEASUREMENTS_IN_METERS // makes game use meters instead of feet in script
 #define USE_PRECISE_MEASUREMENT_CONVERTION // makes game convert feet to meeters more precisely
-#ifdef PC_MENU
+#if defined (PC_MENU) && !defined (STABLE)
 #	define MISSION_REPLAY // mobile feature
 #endif
 //#define SIMPLIER_MISSIONS // apply simplifications from mobile
@@ -437,24 +454,11 @@ enum Config {
 #define AUDIO_CACHE
 #define PS2_AUDIO_CHANNELS // increases the maximum number of audio channels to PS2 value of 44 (PC has 28 originally)
 #define PS2_AUDIO_PATHS // changes audio paths for cutscenes and radio to PS2 paths (needs vbdec on MSS builds)
-//#define AUDIO_OAL_USE_SNDFILE // use libsndfile to decode WAVs instead of our internal decoder
 #define AUDIO_OAL_USE_MPG123 // use mpg123 to support mp3 files
 #define PAUSE_RADIO_IN_FRONTEND // pause radio when game is paused
 #define ATTACH_RELEASING_SOUNDS_TO_ENTITIES // sounds would follow ped and vehicles coordinates if not being queued otherwise
 #define USE_TIME_SCALE_FOR_AUDIO // slow down/speed up sounds according to the speed of the game
 #define MULTITHREADED_AUDIO // for streams. requires C++11 or later
-
-#ifdef AUDIO_OPUS
-#define AUDIO_OAL_USE_OPUS // enable support of opus files
-#define OPUS_AUDIO_PATHS // changes audio paths to opus paths (doesn't work if AUDIO_OAL_USE_OPUS isn't enabled)
-#define OPUS_SFX  // enable if your sfx.raw is encoded with opus (doesn't work if AUDIO_OAL_USE_OPUS isn't enabled)
-
-#ifndef AUDIO_OAL_USE_OPUS
-#undef OPUS_AUDIO_PATHS
-#undef OPUS_SFX
-#endif
-
-#endif
 
 // Streaming
 #if !defined(_WIN32) && !defined(__SWITCH__)

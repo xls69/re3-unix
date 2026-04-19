@@ -22,7 +22,7 @@
 #define _getcwd getcwd
 #endif
 
-#if defined _MSC_VER && !defined CMAKE_NO_AUTOLINK
+#if defined _MSC_VER
 #pragma comment( lib, "OpenAL32.lib" )
 #endif
 
@@ -47,9 +47,6 @@
 #include "MusicManager.h"
 #include "Frontend.h"
 #include "Timer.h"
-#ifdef AUDIO_OAL_USE_OPUS
-#include <opusfile.h>
-#endif
 
 //TODO: fix eax3 reverb
 
@@ -87,11 +84,7 @@ char SampleBankDescFilename[] = "audio/sfx.SDT";
 char SampleBankDataFilename[] = "audio/sfx.RAW";
 
 FILE *fpSampleDescHandle;
-#ifdef OPUS_SFX
-OggOpusFile *fpSampleDataHandle;
-#else
 FILE *fpSampleDataHandle;
-#endif
 int8  gBankLoaded                  [MAX_SFX_BANKS];
 int32 nSampleBankDiscStartOffset   [MAX_SFX_BANKS];
 int32 nSampleBankSize              [MAX_SFX_BANKS];
@@ -1173,27 +1166,12 @@ cSampleManager::LoadSampleBank(uint8 nBank)
 		return FALSE;
 	}
 	
-#ifdef OPUS_SFX
-	int samplesRead = 0;
-	int samplesSize = nSampleBankSize[nBank] / 2;
-	op_pcm_seek(fpSampleDataHandle, 0);
-	while (samplesSize > 0) {
-		int size = op_read(fpSampleDataHandle, (opus_int16 *)(nSampleBankMemoryStartAddress[nBank] + samplesRead), samplesSize, NULL);
-		if (size <= 0) {
-			// huh?
-			//assert(0);
-			break;
-		}
-		samplesRead += size*2;
-		samplesSize -= size;
-	}
-#else
 	if ( fseek(fpSampleDataHandle, nSampleBankDiscStartOffset[nBank], SEEK_SET) != 0 )
 		return FALSE;
 	
 	if ( fread((void *)nSampleBankMemoryStartAddress[nBank], 1, nSampleBankSize[nBank], fpSampleDataHandle) != nSampleBankSize[nBank] )
 		return FALSE;
-#endif
+
 	gBankLoaded[nBank] = LOADING_STATUS_LOADED;
 	
 	return TRUE;
@@ -1286,27 +1264,12 @@ cSampleManager::LoadPedComment(uint32 nComment)
 		}
 	}
 
-#ifdef OPUS_SFX
-	int samplesRead = 0;
-	int samplesSize = m_aSamples[nComment].nSize / 2;
-	op_pcm_seek(fpSampleDataHandle, m_aSamples[nComment].nOffset / 2);
-	while (samplesSize > 0) {
-		int size = op_read(fpSampleDataHandle, (opus_int16 *)(nSampleBankMemoryStartAddress[SFX_BANK_PED_COMMENTS] + PED_BLOCKSIZE * nCurrentPedSlot + samplesRead),
-		                   samplesSize, NULL);
-		if (size <= 0) {
-			return FALSE;
-		}
-		samplesRead += size * 2;
-		samplesSize -= size;
-	}
-#else
 	if ( fseek(fpSampleDataHandle, m_aSamples[nComment].nOffset, SEEK_SET) != 0 )
 		return FALSE;
 	
 	if ( fread((void *)(nSampleBankMemoryStartAddress[SFX_BANK_PED_COMMENTS] + PED_BLOCKSIZE*nCurrentPedSlot), 1, m_aSamples[nComment].nSize, fpSampleDataHandle) != m_aSamples[nComment].nSize )
 		return FALSE;
 
-#endif
 	nPedSlotSfx[nCurrentPedSlot] = nComment;
 		
 	if ( ++nCurrentPedSlot >= MAX_PEDSFX )
@@ -1929,7 +1892,7 @@ cSampleManager::InitialiseSampleBanks(void)
 	fpSampleDescHandle = fcaseopen(SampleBankDescFilename, "rb");
 	if ( fpSampleDescHandle == NULL )
 		return FALSE;
-#ifndef OPUS_SFX
+
 	fpSampleDataHandle = fcaseopen(SampleBankDataFilename, "rb");
 	if ( fpSampleDataHandle == NULL )
 	{
@@ -1942,14 +1905,7 @@ cSampleManager::InitialiseSampleBanks(void)
 	fseek(fpSampleDataHandle, 0, SEEK_END);
 	int32 _nSampleDataEndOffset = ftell(fpSampleDataHandle);
 	rewind(fpSampleDataHandle);
-#else
-	int e;
-	fpSampleDataHandle = op_open_file(SampleBankDataFilename, &e);
-#endif
 	fread(m_aSamples, sizeof(tSample), TOTAL_AUDIO_SAMPLES, fpSampleDescHandle);
-#ifdef OPUS_SFX
-	int32 _nSampleDataEndOffset = m_aSamples[TOTAL_AUDIO_SAMPLES - 1].nOffset + m_aSamples[TOTAL_AUDIO_SAMPLES - 1].nSize;
-#endif
 	fclose(fpSampleDescHandle);
 	fpSampleDescHandle = NULL;
 	

@@ -221,6 +221,8 @@ void CTimer::Shutdown(void)
 #ifdef FIX_BUGS
 void CTimer::Update(void)
 {
+	if (ms_fTimeScale < 0.2f) // very shit but it works
+	ms_fTimeScale = 0.2f;
 	static double frameTimeLogical = 0.0;
 	static double frameTimeFraction = 0.0;
 	static double frameTimeFractionScaled = 0.0;

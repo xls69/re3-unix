@@ -927,11 +927,7 @@ CMenuManager::CheckSliderMovement(int value)
 	case MENUACTION_MOUSESENS:
 		TheCamera.m_fMouseAccelHorzntl += value * 1.0f/200.0f/15.0f;	// probably because diving it to 15 instead of 16(MENUSLIDER_LOGICAL_BARS) had more accurate steps
 		TheCamera.m_fMouseAccelHorzntl = Clamp(TheCamera.m_fMouseAccelHorzntl, 1.0f/3200.0f, 1.0f/200.0f);
-#ifdef FIX_BUGS
-		TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl + 0.0005f;
-#else
 		TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl;
-#endif
 		break;
 #ifdef CUSTOM_FRONTEND_OPTIONS
 	case MENUACTION_CFO_SLIDER:
@@ -3790,7 +3786,6 @@ CMenuManager::LoadSettings()
 			CFileMgr::Read(fileHandle, gString, 1);
 			CFileMgr::Read(fileHandle, (char*)&TheCamera.m_bHeadBob, 1);
 			CFileMgr::Read(fileHandle, (char*)&TheCamera.m_fMouseAccelHorzntl, 4);
-			CFileMgr::Read(fileHandle, (char*)&TheCamera.m_fMouseAccelVertical, 4);
 			CFileMgr::Read(fileHandle, (char*)&MousePointerStateHelper.bInvertVertically, 1);
 			CFileMgr::Read(fileHandle, (char*)&CVehicle::m_bDisableMouseSteering, 1);
 			CFileMgr::Read(fileHandle, (char*)&m_PrefsSfxVolume, 1);
@@ -3890,7 +3885,6 @@ CMenuManager::SaveSettings()
 		CFileMgr::Write(fileHandle, RubbishString, 1);
 		CFileMgr::Write(fileHandle, (char*)&TheCamera.m_bHeadBob, 1);
 		CFileMgr::Write(fileHandle, (char*)&TheCamera.m_fMouseAccelHorzntl, 4);
-		CFileMgr::Write(fileHandle, (char*)&TheCamera.m_fMouseAccelVertical, 4);
 		CFileMgr::Write(fileHandle, (char*)&MousePointerStateHelper.bInvertVertically, 1);
 		CFileMgr::Write(fileHandle, (char*)&CVehicle::m_bDisableMouseSteering, 1);
 		CFileMgr::Write(fileHandle, (char*)&m_PrefsSfxVolume, 1);
@@ -4576,21 +4570,13 @@ CMenuManager::ProcessButtonPresses(void)
 			case HOVEROPTION_INCREASE_MOUSESENS:
 				TheCamera.m_fMouseAccelHorzntl += 1.0f/200.0f/15.0f;	// probably because diving it to 15 instead of 16(MENUSLIDER_LOGICAL_BARS) had more accurate steps
 				TheCamera.m_fMouseAccelHorzntl = Clamp(TheCamera.m_fMouseAccelHorzntl, 1.0f / 3200, 1.0f / 200);
-#ifdef FIX_BUGS
-				TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl + 0.0005f;
-#else
 				TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl;
-#endif
 				SaveSettings();
 				break;
 			case HOVEROPTION_DECREASE_MOUSESENS:
 				TheCamera.m_fMouseAccelHorzntl -= 1.0f/200.0f/15.0f;	// probably because diving it to 15 instead of 16(MENUSLIDER_LOGICAL_BARS) had more accurate steps
 				TheCamera.m_fMouseAccelHorzntl = Clamp(TheCamera.m_fMouseAccelHorzntl, 1.0f / 3200, 1.0f / 200);
-#ifdef FIX_BUGS
-				TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl + 0.0005f;
-#else
 				TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl;
-#endif
 				SaveSettings();
 				break;
 			}
@@ -5149,7 +5135,7 @@ CMenuManager::ProcessButtonPresses(void)
 						m_ControlMethod = CONTROL_STANDARD;
 #ifdef FIX_BUGS
 						MousePointerStateHelper.bInvertVertically = true;
-						TheCamera.m_fMouseAccelVertical = 0.003f;
+						TheCamera.m_fMouseAccelVertical = 0.0025f;
 #else
 						MousePointerStateHelper.bInvertVertically = false;
 #endif

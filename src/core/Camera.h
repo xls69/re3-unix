@@ -27,14 +27,14 @@ enum
 	CAM_ZOOM_CINEMATIC,
 };
 
-#ifdef FREE_CAM // LCS values
+#ifdef FREE_CAM // SA values
 #define FREE_CAR_ZOOM_VALUE_1 (-1.0f)
-#define FREE_CAR_ZOOM_VALUE_2 (2.0f)
-#define FREE_CAR_ZOOM_VALUE_3 (6.0f)
+#define FREE_CAR_ZOOM_VALUE_2 (1.0f)
+#define FREE_CAR_ZOOM_VALUE_3 (3.0f) // 6.0f SA
 
 #define FREE_BOAT_ZOOM_VALUE_1 (-2.41f)
 #define FREE_BOAT_ZOOM_VALUE_2 (6.49f)
-#define FREE_BOAT_ZOOM_VALUE_3 (15.0f)
+#define FREE_BOAT_ZOOM_VALUE_3 (12.0f) //15.0f SA
 #endif
 
 #define DEFAULT_CAR_ZOOM_VALUE_1 (0.05f)

@@ -1755,10 +1755,12 @@ CAutomobile::PreRender(void)
 		}
 
 		// bright lights
+#ifndef NO_LIGHT_CUBES
 		if(Damage.GetLightStatus(VEHLIGHT_FRONT_LEFT) == LIGHT_STATUS_OK && !bNoBrightHeadLights)
 			CBrightLights::RegisterOne(lightL, GetUp(), GetRight(), GetForward(), pHandling->FrontLights + BRIGHTLIGHT_FRONT);
 		if(Damage.GetLightStatus(VEHLIGHT_FRONT_RIGHT) == LIGHT_STATUS_OK && !bNoBrightHeadLights)
 			CBrightLights::RegisterOne(lightR, GetUp(), GetRight(), GetForward(), pHandling->FrontLights + BRIGHTLIGHT_FRONT);
+#endif
 
 		// Taillights
 
@@ -1827,10 +1829,12 @@ CAutomobile::PreRender(void)
 		}
 
 		// bright lights
+#ifndef NO_LIGHT_CUBES
 		if(Damage.GetLightStatus(VEHLIGHT_REAR_LEFT) == LIGHT_STATUS_OK)
 			CBrightLights::RegisterOne(lightL, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_REAR);
 		if(Damage.GetLightStatus(VEHLIGHT_REAR_RIGHT) == LIGHT_STATUS_OK)
 			CBrightLights::RegisterOne(lightR, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_REAR);
+#endif
 
 		// Light shadows
 		if(!alarmOff){
@@ -1898,10 +1902,12 @@ CAutomobile::PreRender(void)
 							lightR, 1.2f, 50.0f*TheCamera.LODDistMultiplier,
 							CCoronas::TYPE_STAR, CCoronas::FLARE_NONE, CCoronas::REFLECTION_ON,
 							CCoronas::LOSCHECK_OFF, CCoronas::STREAK_ON, 0.0f);
+#ifndef NO_LIGHT_CUBES
 					if(Damage.GetLightStatus(VEHLIGHT_REAR_LEFT) == LIGHT_STATUS_OK)
 						CBrightLights::RegisterOne(lightL, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_FRONT);
 					if(Damage.GetLightStatus(VEHLIGHT_REAR_RIGHT) == LIGHT_STATUS_OK)
 						CBrightLights::RegisterOne(lightR, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_FRONT);
+#endif
 				}else{
 					// braking
 					if(Damage.GetLightStatus(VEHLIGHT_REAR_LEFT) == LIGHT_STATUS_OK)
@@ -1914,10 +1920,12 @@ CAutomobile::PreRender(void)
 							lightR, 1.2f, 50.0f*TheCamera.LODDistMultiplier,
 							CCoronas::TYPE_STAR, CCoronas::FLARE_NONE, CCoronas::REFLECTION_ON,
 							CCoronas::LOSCHECK_OFF, CCoronas::STREAK_ON, 0.0f);
+#ifndef NO_LIGHT_CUBES
 					if(Damage.GetLightStatus(VEHLIGHT_REAR_LEFT) == LIGHT_STATUS_OK)
 						CBrightLights::RegisterOne(lightL, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_REAR);
 					if(Damage.GetLightStatus(VEHLIGHT_REAR_RIGHT) == LIGHT_STATUS_OK)
 						CBrightLights::RegisterOne(lightR, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_REAR);
+#endif
 				}
 			}else{
 				if(Damage.GetLightStatus(VEHLIGHT_REAR_LEFT) == LIGHT_STATUS_OK)
@@ -4357,6 +4365,21 @@ CAutomobile::ProcessSwingingDoor(int32 component, eDoors door)
 	mat.SetRotate(axes[0], axes[1], axes[2]);
 	mat.Translate(pos);
 	mat.UpdateRW();
+
+#ifdef HOOD_DETACH // Open hood falls off at high speed
+	if(door == DOOR_BONNET && Doors[door].m_nDoorState == DOORST_OPEN && DotProduct(m_vecMoveSpeed, GetForward()) > 0.4f){
+		CObject *comp = SpawnFlyingComponent(CAR_BONNET, COMPGROUP_BONNET);
+		SetComponentVisibility(m_aCarNodes[CAR_BONNET], ATOMIC_FLAG_NONE);
+		Damage.SetDoorStatus(DOOR_BONNET, DOOR_STATUS_MISSING);
+		if(comp){
+			if(CGeneral::GetRandomNumber() & 1)
+				comp->m_vecMoveSpeed = 0.4f*m_vecMoveSpeed + 0.1f*GetRight() + 0.5f*GetUp();
+			else
+				comp->m_vecMoveSpeed = 0.4f*m_vecMoveSpeed - 0.1f*GetRight() + 0.5f*GetUp();
+			comp->ApplyTurnForce(10.0f*GetUp(), GetForward());
+		}
+	}
+#endif
 }
 
 void

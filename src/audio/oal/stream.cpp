@@ -2,22 +2,13 @@
 
 #ifdef AUDIO_OAL
 
-#if defined _MSC_VER && !defined CMAKE_NO_AUTOLINK
-#ifdef AUDIO_OAL_USE_SNDFILE
-#pragma comment( lib, "libsndfile-1.lib" )
-#endif
+#if defined _MSC_VER
 #ifdef AUDIO_OAL_USE_MPG123
 #pragma comment( lib, "libmpg123-0.lib" )
 #endif
 #endif
-#ifdef AUDIO_OAL_USE_SNDFILE
-#include <sndfile.h>
-#endif
 #ifdef AUDIO_OAL_USE_MPG123
 #include <mpg123.h>
-#endif
-#ifdef AUDIO_OAL_USE_OPUS
-#include <opusfile.h>
 #endif
 
 #include <queue>
@@ -425,81 +416,6 @@ public:
 	}
 };
 
-#ifdef AUDIO_OAL_USE_SNDFILE
-class CSndFile : public IDecoder
-{
-	SNDFILE *m_pfSound;
-	SF_INFO m_soundInfo;
-public:
-	CSndFile(const char *path) :
-		m_pfSound(nil)
-	{
-		memset(&m_soundInfo, 0, sizeof(m_soundInfo));
-		m_pfSound = sf_open(path, SFM_READ, &m_soundInfo);
-	}
-	
-	void FileOpen()
-	{
-	}
-
-	~CSndFile()
-	{
-		if ( m_pfSound )
-		{
-			sf_close(m_pfSound);
-			m_pfSound = nil;
-		}
-	}
-	
-	bool IsOpened()
-	{
-		return m_pfSound != nil;
-	}
-	
-	uint32 GetSampleSize()
-	{
-		return sizeof(uint16);
-	}
-	
-	uint32 GetSampleCount()
-	{
-		return m_soundInfo.frames;
-	}
-	
-	uint32 GetSampleRate()
-	{
-		return m_soundInfo.samplerate;
-	}
-	
-	uint32 GetChannels()
-	{
-		return m_soundInfo.channels;
-	}
-	
-	void Seek(uint32 milliseconds)
-	{
-		if ( !IsOpened() ) return;
-		sf_seek(m_pfSound, ms2samples(milliseconds), SF_SEEK_SET);
-	}
-	
-	uint32 Tell()
-	{
-		if ( !IsOpened() ) return 0;
-		return samples2ms(sf_seek(m_pfSound, 0, SF_SEEK_CUR));
-	}
-	
-	uint32 Decode(void *buffer)
-	{
-		if ( !IsOpened() ) return 0;
-
-		size_t size = sf_read_short(m_pfSound, (short*)buffer, GetBufferSamples()) * GetSampleSize();
-		if (GetChannels()==2)
-			SortStereoBuffer.SortStereo(buffer, size);
-		return size;
-	}
-};
-#endif
-
 #ifdef AUDIO_OAL_USE_MPG123
 
 class CMP3File : public IDecoder
@@ -860,106 +776,6 @@ public:
 		return bufSizePerChannel * m_nChannels;
 	}
 };
-#ifdef AUDIO_OAL_USE_OPUS
-class COpusFile : public IDecoder
-{
-	OggOpusFile *m_FileH;
-	bool m_bOpened;
-	uint32 m_nRate;
-	uint32 m_nChannels;
-public:
-	COpusFile(const char *path) : m_FileH(nil),
-		m_bOpened(false),
-		m_nRate(0),
-		m_nChannels(0)
-	{
-		int ret;
-		m_FileH = op_open_file(path, &ret);
-
-		if (m_FileH) {
-			m_nChannels = op_head(m_FileH, 0)->channel_count;
-			m_nRate = 48000;
-			const OpusTags *tags = op_tags(m_FileH, 0);
-			for (int i = 0; i < tags->comments; i++) {
-				if (strncmp(tags->user_comments[i], "SAMPLERATE", sizeof("SAMPLERATE")-1) == 0)
-				{
-					sscanf(tags->user_comments[i], "SAMPLERATE=%i", &m_nRate);
-					break;
-				}
-			}
-			
-			m_bOpened = true;
-		}
-	}
-
-	void FileOpen()
-	{
-	}
-	
-	~COpusFile()
-	{
-		if (m_FileH)
-		{
-			op_free(m_FileH);
-			m_FileH = nil;
-		}
-	}
-	
-	bool IsOpened()
-	{
-		return m_bOpened;
-	}
-	
-	uint32 GetSampleSize()
-	{
-		return sizeof(uint16);
-	}
-	
-	uint32 GetSampleCount()
-	{
-		if ( !IsOpened() ) return 0;
-		return op_pcm_total(m_FileH, 0);
-	}
-	
-	uint32 GetSampleRate()
-	{
-		return m_nRate;
-	}
-	
-	uint32 GetChannels()
-	{
-		return m_nChannels;
-	}
-	
-	void Seek(uint32 milliseconds)
-	{
-		if ( !IsOpened() ) return;
-		op_pcm_seek(m_FileH, ms2samples(milliseconds) / GetChannels());
-	}
-	
-	uint32 Tell()
-	{
-		if ( !IsOpened() ) return 0;
-		return samples2ms(op_pcm_tell(m_FileH) * GetChannels());
-	}
-	
-	uint32 Decode(void *buffer)
-	{
-		if ( !IsOpened() ) return 0;
-
-		int size = op_read(m_FileH, (opus_int16 *)buffer, GetBufferSamples(), NULL);
-
-		if (size < 0)
-			return 0;
-
-		if (GetChannels() == 2)
-			SortStereoBuffer.SortStereo(buffer, size * m_nChannels * GetSampleSize());
-
-		return size * m_nChannels * GetSampleSize();
-	}
-};
-#endif
-
 
 // For multi-thread: Someone always acquire stream's mutex before entering here
 void
@@ -1200,21 +1016,13 @@ bool CStream::Open(const char* filename, uint32 overrideSampleRate)
 	DEV("Stream %s\n", m_aFilename);
 
 	if (!strcasecmp(&m_aFilename[strlen(m_aFilename) - strlen(".wav")], ".wav"))
-#ifdef AUDIO_OAL_USE_SNDFILE
-		m_pSoundFile = new CSndFile(m_aFilename);
-#else
 		m_pSoundFile = new CWavFile(m_aFilename);
-#endif
 #ifdef AUDIO_OAL_USE_MPG123
 	else if (!strcasecmp(&m_aFilename[strlen(m_aFilename) - strlen(".mp3")], ".mp3"))
 		m_pSoundFile = new CMP3File(m_aFilename);
 #endif
 	else if (!strcasecmp(&m_aFilename[strlen(m_aFilename) - strlen(".vb")], ".VB"))
 		m_pSoundFile = new CVbFile(m_aFilename, overrideSampleRate);
-#ifdef AUDIO_OAL_USE_OPUS
-	else if (!strcasecmp(&m_aFilename[strlen(m_aFilename) - strlen(".opus")], ".opus"))
-		m_pSoundFile = new COpusFile(m_aFilename);
-#endif
 	else 
 		m_pSoundFile = nil;
 

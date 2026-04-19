@@ -109,7 +109,7 @@ void RestoreDefGraphics(int8 action) {
 		return;
 
 	#ifdef PS2_ALPHA_TEST
-		gPS2alphaTest = false;
+		gPS2alphaTest = true;
 	#endif
 	#ifdef MULTISAMPLING
 		FrontEndMenuManager.m_nPrefsMSAALevel = FrontEndMenuManager.m_nDisplayMSAALevel = 0;
