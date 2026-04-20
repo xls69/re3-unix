@@ -94,22 +94,37 @@ const float ZOOM_ONE_DISTANCE[] = { -0.6f, 0.05f, -3.2f, 0.05f, -2.41f };
 const float ZOOM_TWO_DISTANCE[] = { 1.9f, 1.4f, 0.65f, 1.9f, 6.49f };
 const float ZOOM_THREE_DISTANCE[] = { 15.9f, 15.9f, 15.9f, 15.9f, 25.25f };
 
-#ifdef FREE_CAM
-const float LCS_ZOOM_ONE_DISTANCE[] = { -1.0f, -0.2f, -3.2f, 0.05f, -2.41f };
-const float LCS_ZOOM_TWO_DISTANCE[] = { 2.0f, 2.2f, 1.65f, 2.9f, 6.49f };
-const float LCS_ZOOM_THREE_DISTANCE[] = { 6.0f, 6.0f, 15.9f, 15.9f, 15.0f };
+#ifdef FREE_CAM // SA values
+const float LCS_ZOOM_ONE_DISTANCE[] = { -1.0f, -0.2f, -3.20f, 0.05f, -2.41f }; // { -1.0f, -0.2f, -3.20f, 0.05f, -2.41f };
+const float LCS_ZOOM_TWO_DISTANCE[] = { 1.0f, 1.4f, 0.65f, 1.90f, 6.49f }; // { 1.0f, 1.4f, 0.65f, 1.90f, 6.49f };
+const float LCS_ZOOM_THREE_DISTANCE[] = { 3.0f, 3.0f, 12.9f, 12.9f, 12.0f }; // { 6.0f, 6.0f, 15.9f, 15.9f, 15.0f };
 #endif
 
 CCamera::CCamera(void)
 {
+	#if GTA_VERSION >= GTAVC_PC_11 || defined(FIX_BUGS)
+	m_fMouseAccelHorzntl = 0.0025f;
+	m_fMouseAccelVertical = 0.0025f;
+	#endif
 	Init();
 }
 
 void
 CCamera::Init(void)
 {
-	memset(this, 0, sizeof(CCamera));	// this is fine, no vtable
-	m_pRwCamera = nil;
+	#if GTA_VERSION >= GTAVC_PC_11 || defined(FIX_BUGS)
+		float fMouseAccelHorzntl = m_fMouseAccelHorzntl;
+		float fMouseAccelVertical = m_fMouseAccelVertical;
+	#endif
+	{
+	memset(this, 0, sizeof(CCamera));	// getting rid of vtable, eh?
+	
+	#if GTA_VERSION >= GTAVC_PC_11 || defined(FIX_BUGS)
+		m_fMouseAccelHorzntl = fMouseAccelHorzntl;
+		m_fMouseAccelVertical = fMouseAccelVertical;
+	#endif
+		m_pRwCamera = nil;
+	}
 	m_bPlayerWasOnBike = false;
 	m_1rstPersonRunCloseToAWall = false;
 	m_fPositionAlongSpline = 0.0f;
@@ -197,8 +212,8 @@ CCamera::Init(void)
 		m_bMusicFading = false;
 		m_fTimeToFadeMusic = 0.0f;
 		m_fFLOATingFadeMusic = 0.0f;
-		m_fMouseAccelVertical = 0.003f;
-		m_fMouseAccelHorzntl = 0.0025f;
+		//m_fMouseAccelVertical = 0.0025f; // do NOT reset mouse sens on new game
+		//m_fMouseAccelHorzntl = 0.0025f;
 	}
 	if(FrontEndMenuManager.m_bWantToRestart)
 		m_fTimeToFadeMusic = 0.0f;

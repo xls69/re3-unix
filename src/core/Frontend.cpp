@@ -468,8 +468,13 @@ CMenuManager::CMenuManager()
 {
 	m_StatsScrollSpeed = 150.0f;
 	m_StatsScrollDirection = 1;
+#ifdef FIX_BUGS
+	m_PrefsSfxVolume = 102;
+	m_PrefsMusicVolume = 102;
+#else
 	m_PrefsSfxVolume = 49;
 	m_PrefsMusicVolume = 49;
+#endif
 	m_PrefsRadioStation = 0;
 	m_PrefsStereoMono = 1;
 	m_PrefsBrightness = 256;
@@ -477,7 +482,7 @@ CMenuManager::CMenuManager()
 	m_KeyPressedCode = -1;
 	m_bFrontEnd_ReloadObrTxtGxt = false;
 	m_PrefsMP3BoostVolume = 0;
-	m_PrefsShowSubtitles = 0;
+	m_PrefsShowSubtitles = 1;
 	m_PrefsShowLegends = 1;
 #ifdef ASPECT_RATIO_SCALE
 	m_PrefsUseWideScreen = AR_AUTO;
@@ -735,6 +740,32 @@ CMenuManager::CheckSliderMovement(int value)
 		CRenderer::ms_lodDistScale = m_PrefsLOD;
 		break;
 
+#ifdef FIX_BUGS
+	// New max is 102 to make the game at least properly louder compared to GTA III (still slightly quieter)
+	case MENUACTION_MUSICVOLUME:
+		if (m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER) {
+			m_PrefsMusicVolume += value * (101 / MENUSLIDER_LOGICAL_BARS);
+			m_PrefsMusicVolume = Clamp(m_PrefsMusicVolume, 0, 102);
+			DMAudio.SetMusicMasterVolume(m_PrefsMusicVolume);
+		}
+		break;
+	case MENUACTION_SFXVOLUME:
+		if (m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER) {
+			m_PrefsSfxVolume += value * (101 / MENUSLIDER_LOGICAL_BARS);
+			m_PrefsSfxVolume = Clamp(m_PrefsSfxVolume, 0, 102);
+			DMAudio.SetEffectsMasterVolume(m_PrefsSfxVolume);
+		}
+		break;
+	case MENUACTION_MP3VOLUMEBOOST:
+		if (m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER) {
+			if (DMAudio.IsMP3RadioChannelAvailable()) {
+				m_PrefsMP3BoostVolume += value * (101 / MENUSLIDER_LOGICAL_BARS);
+				m_PrefsMP3BoostVolume = Clamp(m_PrefsMP3BoostVolume, 0, 102);
+				DMAudio.SetMP3BoostVolume(m_PrefsMP3BoostVolume);
+			}
+		}
+		break;
+#else
 	// I wonder the idea behind clamping those max to 65
 	case MENUACTION_MUSICVOLUME:
 		if (m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER) {
@@ -759,11 +790,13 @@ CMenuManager::CheckSliderMovement(int value)
 			}
 		}
 		break;
+#endif
+
 	case MENUACTION_MOUSESENS:
 		TheCamera.m_fMouseAccelHorzntl += value * 1.0f/200.0f/15.0f;	// probably because diving it to 15 instead of 16(MENUSLIDER_LOGICAL_BARS) had more accurate steps
 		TheCamera.m_fMouseAccelHorzntl = Clamp(TheCamera.m_fMouseAccelHorzntl, 1.0f/3200.0f, 1.0f/200.0f);
 #ifdef FIX_BUGS
-		TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl + 0.0005f;
+		TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl;
 #endif
 		break;
 #ifdef CUSTOM_FRONTEND_OPTIONS
@@ -1563,6 +1596,16 @@ CMenuManager::DrawStandardMenus(bool activeScreen)
 						case MENUACTION_DRAWDIST:
 							ProcessSlider((m_PrefsLOD - 0.925f) / 0.875f, SLIDER_Y(99.0f), HOVEROPTION_INCREASE_DRAWDIST, HOVEROPTION_DECREASE_DRAWDIST, SCREEN_WIDTH, true);
 							break;
+#ifdef FIX_BUGS
+						case MENUACTION_MUSICVOLUME:
+							if(m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER)
+								ProcessSlider(m_PrefsMusicVolume / 101.0f, SLIDER_Y(70.0f), HOVEROPTION_INCREASE_MUSICVOLUME, HOVEROPTION_DECREASE_MUSICVOLUME, SCREEN_WIDTH, true);
+							break;
+						case MENUACTION_SFXVOLUME:
+							if (m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER)
+								ProcessSlider(m_PrefsSfxVolume / 101.0f, SLIDER_Y(99.0f), HOVEROPTION_INCREASE_SFXVOLUME, HOVEROPTION_DECREASE_SFXVOLUME, SCREEN_WIDTH, true);
+							break;
+#else
 						case MENUACTION_MUSICVOLUME:
 							if(m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER)
 								ProcessSlider(m_PrefsMusicVolume / 64.0f, SLIDER_Y(70.0f), HOVEROPTION_INCREASE_MUSICVOLUME, HOVEROPTION_DECREASE_MUSICVOLUME, SCREEN_WIDTH, true);
@@ -1571,13 +1614,22 @@ CMenuManager::DrawStandardMenus(bool activeScreen)
 							if (m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER)
 								ProcessSlider(m_PrefsSfxVolume / 64.0f, SLIDER_Y(99.0f), HOVEROPTION_INCREASE_SFXVOLUME, HOVEROPTION_DECREASE_SFXVOLUME, SCREEN_WIDTH, true);
 							break;
+#endif
 						case MENUACTION_MOUSESENS:
 							ProcessSlider(TheCamera.m_fMouseAccelHorzntl * 200.0f, SLIDER_Y(170.0f), HOVEROPTION_INCREASE_MOUSESENS, HOVEROPTION_DECREASE_MOUSESENS, SCREEN_WIDTH, false);
 							break;
+#ifdef FIX_BUGS
+						case MENUACTION_MP3VOLUMEBOOST:
+							if(m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER && DMAudio.IsMP3RadioChannelAvailable())
+								ProcessSlider(m_PrefsMP3BoostVolume / 101.f, SLIDER_Y(128.0f), HOVEROPTION_INCREASE_MP3BOOST, HOVEROPTION_DECREASE_MP3BOOST, SCREEN_WIDTH, true);
+							break;
+#else
 						case MENUACTION_MP3VOLUMEBOOST:
 							if(m_nPrefsAudio3DProviderIndex != NO_AUDIO_PROVIDER && DMAudio.IsMP3RadioChannelAvailable())
 								ProcessSlider(m_PrefsMP3BoostVolume / 64.f, SLIDER_Y(128.0f), HOVEROPTION_INCREASE_MP3BOOST, HOVEROPTION_DECREASE_MP3BOOST, SCREEN_WIDTH, true);
 							break;
+#endif
+
 #ifdef CUSTOM_FRONTEND_OPTIONS
 						case MENUACTION_CFO_SLIDER:
 							CMenuScreenCustom::CMenuEntry &option = aScreens[m_nCurrScreen].m_aEntries[i];
@@ -3172,7 +3224,7 @@ CMenuManager::LoadSettings()
 #endif
 
 #ifdef FIX_BUGS
-	TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl + 0.0005f;
+	TheCamera.m_fMouseAccelVertical = TheCamera.m_fMouseAccelHorzntl;
 #endif
 #ifdef PC_PLAYER_CONTROLS
 	CCamera::m_bUseMouse3rdPerson = m_ControlMethod == CONTROL_STANDARD;
@@ -4895,8 +4947,13 @@ CMenuManager::ProcessUserInput(uint8 goDown, uint8 goUp, uint8 optionSelected, u
 				if (m_nCurrScreen == MENUPAGE_SOUND_SETTINGS) {
 					m_nPrefsAudio3DProviderIndex = DMAudio.AutoDetect3DProviders();
 					DMAudio.SetCurrent3DProvider(m_nPrefsAudio3DProviderIndex);
+#ifdef FIX_BUGS
+					m_PrefsSfxVolume = 102;
+					m_PrefsMusicVolume = 102;
+#else
 					m_PrefsSfxVolume = 49;
 					m_PrefsMusicVolume = 49;
+#endif
 					m_PrefsRadioStation = EMOTION;
 					m_PrefsMP3BoostVolume = 0;
 					m_PrefsStereoMono = 1;
@@ -4956,7 +5013,7 @@ CMenuManager::ProcessUserInput(uint8 goDown, uint8 goUp, uint8 optionSelected, u
 					MousePointerStateHelper.bInvertVertically = true;
 					TheCamera.m_bHeadBob = false;
 #ifdef FIX_BUGS
-					TheCamera.m_fMouseAccelVertical = 0.003f;
+					TheCamera.m_fMouseAccelVertical = 0.0025f;
 #endif
 					TheCamera.m_fMouseAccelHorzntl = 0.0025f;
 					CVehicle::m_bDisableMouseSteering = true;
@@ -5038,8 +5095,16 @@ CMenuManager::ProcessUserInput(uint8 goDown, uint8 goUp, uint8 optionSelected, u
 				m_nTotalListRow = 0;
 			}
 		} else {
+#ifdef MODERN_KEYMAP
+			DMAudio.PlayFrontEndSound(SOUND_FRONTEND_BACK, 0);
+			SwitchToNewScreen(-2);
+			if (hasNativeList(m_nCurrScreen)) {
+				m_nTotalListRow = 0;
+			}
+#else
 			DMAudio.PlayFrontEndSound(SOUND_FRONTEND_FAIL, 0);
 			m_ShowEmptyBindingError = true;
+#endif
 		}
 	}
 

@@ -1417,7 +1417,9 @@ CBike::PreRender(void)
 		}
 
 		// bright light
+#ifndef NO_LIGHT_CUBES
 		CBrightLights::RegisterOne(light, GetUp(), GetRight(), GetForward(), pHandling->FrontLights + BRIGHTLIGHT_FRONT);
+#endif
 
 		// Taillight
 
@@ -1456,7 +1458,9 @@ CBike::PreRender(void)
 		}
 
 		// bright light
+#ifndef NO_LIGHT_CUBES
 		CBrightLights::RegisterOne(light, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_REAR);
+#endif
 
 		// Light shadows
 		if(!alarmOff){
@@ -1510,7 +1514,10 @@ CBike::PreRender(void)
 						light, 1.2f, 50.0f*TheCamera.LODDistMultiplier,
 						CCoronas::TYPE_STAR, CCoronas::FLARE_NONE, CCoronas::REFLECTION_ON,
 						CCoronas::LOSCHECK_OFF, CCoronas::STREAK_ON, 0.0f);
+#ifndef NO_LIGHT_CUBES
 					CBrightLights::RegisterOne(light, GetUp(), GetRight(), GetForward(), pHandling->RearLights + BRIGHTLIGHT_REAR);
+#endif
+
 				}
 			}else{
 				CCoronas::UpdateCoronaCoors((uintptr)this + 14, light, 50.0f*TheCamera.LODDistMultiplier, 0.0f);

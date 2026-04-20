@@ -110,7 +110,7 @@ void RestoreDefGraphics(int8 action) {
 		return;
 
 	#ifdef PS2_ALPHA_TEST
-		gPS2alphaTest = false;
+		gPS2alphaTest = true;
 	#endif
 	#ifdef MULTISAMPLING
 		FrontEndMenuManager.m_nPrefsMSAALevel = FrontEndMenuManager.m_nDisplayMSAALevel = 0;
@@ -155,7 +155,7 @@ void RestoreDefDisplay(int8 action) {
 		FrontEndMenuManager.m_PrefsBrightness = 256;
 		FrontEndMenuManager.m_PrefsLOD = 1.2f;
 		CRenderer::ms_lodDistScale = 1.2f;
-		FrontEndMenuManager.m_PrefsShowSubtitles = false;
+		FrontEndMenuManager.m_PrefsShowSubtitles = true;
 		FrontEndMenuManager.m_PrefsShowLegends = true;
 		FrontEndMenuManager.m_PrefsRadarMode = 0;
 		FrontEndMenuManager.m_PrefsShowHud = true;

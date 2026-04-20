@@ -1387,14 +1387,14 @@ CCam::Process_FollowPedWithMouse(const CVector &CameraTarget, float TargetOrient
 		if((MouseX != 0.0f || MouseY != 0.0f) && !CPad::GetPad(0)->ArePlayerControlsDisabled()){
 			UseMouse = true;
 			LookLeftRight = -2.5f*MouseX;
-			LookUpDown = 4.0f*MouseY;
+			LookUpDown = 2.5f*MouseY;
 		}else{
 			LookLeftRight = -CPad::GetPad(0)->LookAroundLeftRight();
 			LookUpDown = CPad::GetPad(0)->LookAroundUpDown();
 		}
 		if(UseMouse){
 			BetaOffset = LookLeftRight * TheCamera.m_fMouseAccelHorzntl * FOV/80.0f;
-			AlphaOffset = LookUpDown * TheCamera.m_fMouseAccelVertical * FOV/80.0f;
+			AlphaOffset = LookUpDown * TheCamera.m_fMouseAccelHorzntl * FOV/80.0f;
 		}else{
 			BetaOffset = LookLeftRight * fStickSens * (1.0f/14.0f) * FOV/80.0f * CTimer::GetTimeStep();
 			AlphaOffset = LookUpDown * fStickSens * (0.6f/14.0f) * FOV/80.0f * CTimer::GetTimeStep();
@@ -2250,7 +2250,7 @@ CCam::Process_Rocket(const CVector &CameraTarget, float, float, float)
 	if(MouseX != 0.0f || MouseY != 0.0f){
 		UseMouse = true;
 		LookLeftRight = -3.0f*MouseX;
-		LookUpDown = 4.0f*MouseY;
+		LookUpDown = 3.0f*MouseY;
 	}else
 #endif
 	{
@@ -2260,7 +2260,7 @@ CCam::Process_Rocket(const CVector &CameraTarget, float, float, float)
 #ifdef GTA_PC_CONTROLS
 	if(UseMouse){
 		Beta += TheCamera.m_fMouseAccelHorzntl * LookLeftRight * FOV/80.0f;
-		Alpha += TheCamera.m_fMouseAccelVertical * LookUpDown * FOV/80.0f;
+		Alpha += TheCamera.m_fMouseAccelHorzntl * LookUpDown * FOV/80.0f;
 	}else
 #endif
 	{
@@ -2358,7 +2358,7 @@ CCam::Process_M16_1stPerson(const CVector &CameraTarget, float, float, float)
 	if(MouseX != 0.0f || MouseY != 0.0f){
 		UseMouse = true;
 		LookLeftRight = -3.0f*MouseX;
-		LookUpDown = 4.0f*MouseY;
+		LookUpDown = 3.0f*MouseY;
 	}else
 #endif
 	{
@@ -2368,7 +2368,7 @@ CCam::Process_M16_1stPerson(const CVector &CameraTarget, float, float, float)
 #ifdef GTA_PC_CONTROLS
 	if(UseMouse){
 		Beta += TheCamera.m_fMouseAccelHorzntl * LookLeftRight * FOV/80.0f;
-		Alpha += TheCamera.m_fMouseAccelVertical * LookUpDown * FOV/80.0f;
+		Alpha += TheCamera.m_fMouseAccelHorzntl * LookUpDown * FOV/80.0f;
 	}else
 #endif
 	if(Mode == MODE_HELICANNON_1STPERSON){
@@ -2775,7 +2775,7 @@ CCam::Process_1rstPersonPedOnPC(const CVector&, float TargetOrientation, float, 
 		if(MouseX != 0.0f || MouseY != 0.0f){
 			UseMouse = true;
 			LookLeftRight = -3.0f*MouseX;
-			LookUpDown = 4.0f*MouseY;
+			LookUpDown = 3.0f*MouseY;
 		}else
 #endif
 		{
@@ -2785,7 +2785,7 @@ CCam::Process_1rstPersonPedOnPC(const CVector&, float TargetOrientation, float, 
 #ifdef GTA_PC_CONTROLS
 		if(UseMouse){
 			Beta += TheCamera.m_fMouseAccelHorzntl * LookLeftRight * FOV/80.0f;
-			Alpha += TheCamera.m_fMouseAccelVertical * LookUpDown * FOV/80.0f;
+			Alpha += TheCamera.m_fMouseAccelHorzntl * LookUpDown * FOV/80.0f;
 		}else
 #endif
 		{
@@ -2920,7 +2920,7 @@ CCam::Process_Sniper(const CVector &CameraTarget, float TargetOrientation, float
 	if(MouseX != 0.0f || MouseY != 0.0f){
 		UseMouse = true;
 		LookLeftRight = -3.0f*MouseX;
-		LookUpDown = 4.0f*MouseY;
+		LookUpDown = 3.0f*MouseY;
 	}else
 #endif
 	{
@@ -2930,7 +2930,7 @@ CCam::Process_Sniper(const CVector &CameraTarget, float TargetOrientation, float
 #ifdef GTA_PC_CONTROLS
 	if(UseMouse){
 		Beta += TheCamera.m_fMouseAccelHorzntl * LookLeftRight * FOV/80.0f;
-		Alpha += TheCamera.m_fMouseAccelVertical * LookUpDown * FOV/80.0f;
+		Alpha += TheCamera.m_fMouseAccelHorzntl * LookUpDown * FOV/80.0f;
 	}else
 #endif
 	{
@@ -4691,7 +4691,7 @@ CCam::Process_FollowPed_Rotation(const CVector &CameraTarget, float TargetOrient
 	float AlphaOffset, BetaOffset;
 	if(UseMouse){
 		BetaOffset = LookLeftRight * TheCamera.m_fMouseAccelHorzntl * FOV/80.0f;
-		AlphaOffset = LookUpDown * TheCamera.m_fMouseAccelVertical * FOV/80.0f;
+		AlphaOffset = LookUpDown * TheCamera.m_fMouseAccelHorzntl * FOV/80.0f;
 	}else{
 		BetaOffset = LookLeftRight * fStickSens * (1.0f/20.0f) * FOV/80.0f * CTimer::GetTimeStep();
 		AlphaOffset = LookUpDown * fStickSens * (0.6f/20.0f) * FOV/80.0f * CTimer::GetTimeStep();

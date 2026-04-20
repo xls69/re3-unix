@@ -424,7 +424,7 @@ void
 AttachGlossPipe(rw::Clump *clump)
 {
 	FORLIST(lnk, clump->atomics)
-		AttachWorldPipe(rw::Atomic::fromClump(lnk));
+		AttachGlossPipe(rw::Atomic::fromClump(lnk));
 }
 
 

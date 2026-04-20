@@ -52,7 +52,7 @@ long _dwOperatingSystemVersion;
 #include "Font.h"
 #include "MemoryMgr.h"
 
-// This is defined on project-level, via premake5 or cmake
+// This is defined on project-level, via premake5
 #ifdef GET_KEYBOARD_INPUT_FROM_X11
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>

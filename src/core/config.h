@@ -6,6 +6,14 @@
 #define VANILLA_DEFINES
 #endif
 
+#ifdef CUSTOM
+	#define DEBUGMENU
+	#define MASTER
+	#define STABLE
+	#define NO_LIGHT_CUBES
+	#define MODERN_KEYMAP
+#endif
+
 enum Config {
 	NUMPLAYERS = 1,
 
@@ -185,8 +193,10 @@ enum Config {
 #	ifndef GTA_HANDHELD
 #		define PC_PLAYER_CONTROLS	// mouse player/cam mode
 #	endif
+#ifndef STABLE
 #	define GTA_REPLAY
 #	define GTA_SCENE_EDIT
+#endif
 #	define PC_MENU
 #	define PC_WATER
 #	define GTA_PC_CONTROLS	// enables keyboard and mouse. currently GTA_PC and a few other defines will not work without this
@@ -313,15 +323,17 @@ enum Config {
 #define USE_TXD_CDIMAGE		// generate and load textures from txd.img
 #define PS2_ALPHA_TEST		// emulate ps2 alpha test 
 #define IMPROVED_VIDEOMODE	// save and load videomode parameters instead of a magic number
-#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
+//#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
 #define DISABLE_VSYNC_ON_TEXTURE_CONVERSION // make texture conversion work faster by disabling vsync
 #define ANISOTROPIC_FILTERING	// set all textures to max anisotropic filtering
 //#define USE_TEXTURE_POOL
 #ifdef LIBRW
 #define EXTENDED_COLOURFILTER		// more options for colour filter (replaces mblur)
 #define EXTENDED_PIPELINES		// custom render pipelines (includes Neo)
+#ifndef STABLE
 #define SCREEN_DROPLETS			// neo water droplets
 #define NEW_RENDERER		// leeds-like world rendering, needs librw
+#endif
 #endif
 
 #define FIX_SPRITES	// fix sprites aspect ratio(moon, coronas, particle etc)
@@ -377,9 +389,13 @@ enum Config {
 #		define GRAPHICS_MENU_OPTIONS // otherwise Display settings will be scrollable
 #		define NO_ISLAND_LOADING  // disable loadscreen between islands via loading all island data at once, consumes more memory and CPU
 #		define CUTSCENE_BORDERS_SWITCH
+#ifndef STABLE
 #		define MULTISAMPLING		// adds MSAA option
+#endif
 #		define INVERT_LOOK_FOR_PAD // enable the hidden option
+#ifndef STABLE
 #		define PED_CAR_DENSITY_SLIDERS
+#endif
 #	endif
 #endif
 
@@ -394,7 +410,7 @@ enum Config {
 #if (defined SUPPORT_XBOX_SCRIPT && defined SUPPORT_MOBILE_SCRIPT)
 static_assert(false, "SUPPORT_XBOX_SCRIPT and SUPPORT_MOBILE_SCRIPT are mutually exclusive");
 #endif
-#ifdef PC_MENU
+#if defined (PC_MENU) && !defined (STABLE)
 #define MISSION_REPLAY // mobile feature
 //#define SIMPLER_MISSIONS // apply simplifications from mobile
 #define USE_MISSION_REPLAY_OVERRIDE_FOR_NON_MOBILE_SCRIPT
@@ -447,24 +463,11 @@ static_assert(false, "SUPPORT_XBOX_SCRIPT and SUPPORT_MOBILE_SCRIPT are mutually
 #define AUDIO_CACHE // cache sound lengths to speed up the cold boot
 #define PS2_AUDIO_CHANNELS // increases the maximum number of audio channels to PS2 value of 43 (PC has 28 originally)
 #define PS2_AUDIO_PATHS // changes audio paths for cutscenes and radio to PS2 paths (needs vbdec on MSS builds)
-//#define AUDIO_OAL_USE_SNDFILE // use libsndfile to decode WAVs instead of our internal decoder
 #define AUDIO_OAL_USE_MPG123 // use mpg123 to support mp3 files
 #define PAUSE_RADIO_IN_FRONTEND // pause radio when game is paused
 #define ATTACH_RELEASING_SOUNDS_TO_ENTITIES // sounds would follow ped and vehicles coordinates if not being queued otherwise
 #define USE_TIME_SCALE_FOR_AUDIO // slow down/speed up sounds according to the speed of the game
 #define MULTITHREADED_AUDIO // for streams. requires C++11 or later
-
-#ifdef AUDIO_OPUS
-#define AUDIO_OAL_USE_OPUS // enable support of opus files
-//#define OPUS_AUDIO_PATHS // (not supported on VC yet) changes audio paths to opus paths (doesn't work if AUDIO_OAL_USE_OPUS isn't enabled)
-//#define OPUS_SFX  // enable if your sfx.raw is encoded with opus (doesn't work if AUDIO_OAL_USE_OPUS isn't enabled)
-
-#ifndef AUDIO_OAL_USE_OPUS
-#undef OPUS_AUDIO_PATHS
-#undef OPUS_SFX
-#endif
-
-#endif
 
 // Streaming
 #if !defined(_WIN32) && !defined(__SWITCH__)

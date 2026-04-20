@@ -181,6 +181,70 @@ void CControllerConfigManager::LoadSettings(int32 file)
 
 void CControllerConfigManager::InitDefaultControlConfiguration()
 {
+#ifdef MODERN_KEYMAP
+	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKLEFT,		      		  'Q',	      KEYBOARD);
+										    						              
+	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKRIGHT,		      		  'E',	  	  KEYBOARD);
+															              
+	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKBEHIND,		      	  'C',	  	  KEYBOARD);
+
+	SetControllerKeyAssociatedWithAction	(VEHICLE_HORN,						  'H',		  KEYBOARD);
+	SetControllerKeyAssociatedWithAction	(VEHICLE_HORN,                        rsLSHIFT,   OPTIONAL_EXTRA);									              
+																	              
+	SetControllerKeyAssociatedWithAction    (VEHICLE_HANDBRAKE,                   ' ',        KEYBOARD);
+															                      
+	SetControllerKeyAssociatedWithAction    (VEHICLE_ENTER_EXIT,                  'F',    	  KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (VEHICLE_ENTER_EXIT,                  rsENTER,    OPTIONAL_EXTRA);
+										    					                  
+	SetControllerKeyAssociatedWithAction    (VEHICLE_ACCELERATE,                  'W',        KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction	(VEHICLE_CHANGE_RADIO_STATION,        'R',        KEYBOARD);
+	SetControllerKeyAssociatedWithAction	(VEHICLE_CHANGE_RADIO_STATION,        rsINS,      OPTIONAL_EXTRA);
+																		          
+	SetControllerKeyAssociatedWithAction    (VEHICLE_BRAKE,                       'S',        KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction    (TOGGLE_SUBMISSIONS,                  rsCAPSLK,   KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (TOGGLE_SUBMISSIONS,                  '2',   	  OPTIONAL_EXTRA);
+																		          
+	SetControllerKeyAssociatedWithAction    (GO_LEFT,                             'A',        KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction    (GO_RIGHT,                            'D',        KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction    (GO_FORWARD,                          'W',        KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction    (GO_BACK,                             'S',        KEYBOARD);
+
+	SetControllerKeyAssociatedWithAction    (PED_DUCK,                            'C',        KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction    (PED_FIREWEAPON,                      rsLCTRL,    KEYBOARD);
+	#ifdef BIND_VEHICLE_FIREWEAPON
+		SetControllerKeyAssociatedWithAction    (VEHICLE_FIREWEAPON,                  rsLCTRL,    KEYBOARD);
+	#endif
+	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_LEFT,               'Q',   	  KEYBOARD);
+
+	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_RIGHT,              'E', 	  KEYBOARD);
+																		          
+	SetControllerKeyAssociatedWithAction    (PED_JUMPING,                         ' ',        KEYBOARD);
+
+	SetControllerKeyAssociatedWithAction    (PED_ANSWER_PHONE,                    rsTAB,      KEYBOARD);
+																              
+	SetControllerKeyAssociatedWithAction	(PED_SPRINT,                          rsLSHIFT,   KEYBOARD);
+	
+	SetControllerKeyAssociatedWithAction    (PED_SNIPER_ZOOM_IN,                  'X',        KEYBOARD);
+										    
+	SetControllerKeyAssociatedWithAction    (PED_SNIPER_ZOOM_OUT,                 'Z',        KEYBOARD);
+										    
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETLEFT,                  rsLEFT,  	  KEYBOARD);
+
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETRIGHT,                 rsRIGHT,    KEYBOARD);
+										    
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETUP,                    rsUP,  	  KEYBOARD);
+
+	SetControllerKeyAssociatedWithAction    (VEHICLE_TURRETDOWN,                  rsDOWN, 	  KEYBOARD);
+										    
+	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   'V',     	  KEYBOARD);
+	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   rsHOME,     OPTIONAL_EXTRA);
+#else
 	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKLEFT,                    rsPADEND,   KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (VEHICLE_LOOKLEFT,                    'Q',        OPTIONAL_EXTRA);
 										    						              
@@ -234,10 +298,10 @@ void CControllerConfigManager::InitDefaultControlConfiguration()
 																		          
 	SetControllerKeyAssociatedWithAction    (PED_FIREWEAPON,                      rsPADINS,   KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (PED_FIREWEAPON,                      rsLCTRL,    OPTIONAL_EXTRA);
-#ifdef BIND_VEHICLE_FIREWEAPON
-	SetControllerKeyAssociatedWithAction    (VEHICLE_FIREWEAPON,                  rsPADINS,   KEYBOARD);
-	SetControllerKeyAssociatedWithAction    (VEHICLE_FIREWEAPON,                  rsLCTRL,    OPTIONAL_EXTRA);
-#endif
+	#ifdef BIND_VEHICLE_FIREWEAPON
+		SetControllerKeyAssociatedWithAction(VEHICLE_FIREWEAPON,                  rsPADINS,   KEYBOARD);
+		SetControllerKeyAssociatedWithAction(VEHICLE_FIREWEAPON,                  rsLCTRL,    OPTIONAL_EXTRA);
+	#endif
 	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_LEFT,               rsPADDEL,   KEYBOARD);
 
 	SetControllerKeyAssociatedWithAction    (PED_CYCLE_WEAPON_RIGHT,              rsPADENTER, OPTIONAL_EXTRA); // BUG: must be KEYBOARD ?
@@ -254,11 +318,11 @@ void CControllerConfigManager::InitDefaultControlConfiguration()
 	else		
 	{
 		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsLSHIFT,   OPTIONAL_EXTRA);
-#ifndef FIX_BUGS
+	#ifndef FIX_BUGS
 		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsRSHIFT,   OPTIONAL_EXTRA); // BUG: must be KEYBOARD
-#else
+	#else
 		SetControllerKeyAssociatedWithAction(PED_SPRINT,                          rsRSHIFT,   KEYBOARD);
-#endif
+	#endif
 	}
 
 	SetControllerKeyAssociatedWithAction    (PED_CYCLE_TARGET_LEFT,               '[',        KEYBOARD);
@@ -291,6 +355,7 @@ void CControllerConfigManager::InitDefaultControlConfiguration()
 										    
 	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   rsHOME,     KEYBOARD);
 	SetControllerKeyAssociatedWithAction    (CAMERA_CHANGE_VIEW_ALL_SITUATIONS,   'V',        OPTIONAL_EXTRA);
+#endif
 
 	for (int32 i = 0; i < MAX_SIMS; i++)
 	{
@@ -316,7 +381,10 @@ void CControllerConfigManager::InitDefaultControlConfigMouse(CMouseControllerSta
 	{
 		SetMouseButtonAssociatedWithAction(PED_LOCK_TARGET,              3);
 
+#ifndef MODERN_KEYMAP
 		SetMouseButtonAssociatedWithAction(VEHICLE_HANDBRAKE,            3);
+#endif
+
 	}
 
 	if (availableButtons.MMB)

@@ -89,10 +89,14 @@ CGameLogic::SortOutStreamingAndMemory(const CVector &pos)
 	CStreaming::DeleteRwObjectsAfterDeath(pos);
 	CStreaming::RemoveUnusedModelsInLoadedList();
 	CGame::DrasticTidyUpMemory(true);
+#ifndef FIX_BUGS // Player's clothes are not reset after death or arrest
 	CWorld::Players[CWorld::PlayerInFocus].m_pPed->Undress("player");
+#endif
 	CStreaming::LoadSceneCollision(pos);
 	CStreaming::LoadScene(pos);
+#ifndef FIX_BUGS // Player's clothes are not reset after death or arrest
 	CWorld::Players[CWorld::PlayerInFocus].m_pPed->Dress();
+#endif
 	CTimer::Update();
 }
 
