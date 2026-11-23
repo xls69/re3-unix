@@ -355,7 +355,7 @@ DoFade(void)
 bool
 RwGrabScreen(RwCamera *camera, RwChar *filename)
 {
-	char temp[255];
+	char temp[FILEMGR_PATH_SIZE + 255];
 	RwImage *pImage = RsGrabScreen(camera);
 	bool result = true;
 
