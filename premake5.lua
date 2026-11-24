@@ -341,7 +341,7 @@ project "re3"
 	filter { "system:macosx", "action:xcode4" }
 		xcodebuildresources { "res/macos/ThirdPartyNotices.txt" }
 		xcodebuildsettings {
-			["PRODUCT_BUNDLE_IDENTIFIER"] = "io.github.mrxenginner.re3",
+			["PRODUCT_BUNDLE_IDENTIFIER"] = "io.github.xls69.re3",
 			["INSTALL_PATH"] = "$(LOCAL_APPS_DIR)",
 			["CODE_SIGN_STYLE"] = "Automatic",
 			["LD_RUNPATH_SEARCH_PATHS"] = "$(inherited) @executable_path/../Frameworks",
@@ -386,7 +386,7 @@ project "re3"
 
 	filter {}
 
-	if(_OPTIONS["with-librw"]) then
+	if(_OPTIONS["with-librw"] and _ACTION ~= "xcode4") then
 		dependson "librw"
 	end
 
