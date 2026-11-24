@@ -684,7 +684,8 @@ CWorld::FindObjectsInRangeSectorList(CPtrList &list, Const CVector &centre, floa
 	float radiusSqr = radius * radius;
 	float objDistSqr;
 
-	for(CPtrNode *node = list.first; node; node = node->next) {
+	for(CPtrNode *node = list.first; node; ) {
+		CPtrNode *next = node->next;
 		CEntity *object = (CEntity *)node->item;
 		if(object->m_scanCode != GetCurrentScanCode()) {
 			object->m_scanCode = GetCurrentScanCode();
@@ -700,6 +701,7 @@ CWorld::FindObjectsInRangeSectorList(CPtrList &list, Const CVector &centre, floa
 				(*numObjects)++;
 			}
 		}
+		node = next;
 	}
 }
 
@@ -765,7 +767,8 @@ CWorld::FindObjectsOfTypeInRangeSectorList(uint32 modelId, CPtrList &list, const
                                            bool bCheck2DOnly, int16 *nEntitiesFound, int16 maxEntitiesToFind,
                                            CEntity **aEntities)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CEntity *pEntity = (CEntity *)pNode->item;
 		if(pEntity->m_scanCode != GetCurrentScanCode()) {
 			pEntity->m_scanCode = GetCurrentScanCode();
@@ -781,6 +784,7 @@ CWorld::FindObjectsOfTypeInRangeSectorList(uint32 modelId, CPtrList &list, const
 				}
 			}
 		}
+		pNode = pNext;
 	}
 }
 
@@ -959,7 +963,8 @@ CWorld::TestSphereAgainstSectorList(CPtrList &list, CVector spherePos, float rad
 	CMatrix sphereMat;
 	sphereMat.SetTranslate(spherePos);
 
-	for(CPtrNode *node = list.first; node; node = node->next) {
+	for(CPtrNode *node = list.first; node; ) {
+		CPtrNode *next = node->next;
 		CEntity *e = (CEntity *)node->item;
 
 		if(e->m_scanCode != GetCurrentScanCode()) {
@@ -984,6 +989,7 @@ CWorld::TestSphereAgainstSectorList(CPtrList &list, CVector spherePos, float rad
 				}
 			}
 		}
+		node = next;
 	}
 
 	return nil;
@@ -1127,7 +1133,8 @@ void
 CWorld::FindObjectsKindaCollidingSectorList(CPtrList &list, const CVector &position, float radius, bool bCheck2DOnly,
                                             int16 *nCollidingEntities, int16 maxEntitiesToFind, CEntity **aEntities)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CEntity *pEntity = (CEntity *)pNode->item;
 		if(pEntity->m_scanCode != GetCurrentScanCode()) {
 			pEntity->m_scanCode = GetCurrentScanCode();
@@ -1141,6 +1148,7 @@ CWorld::FindObjectsKindaCollidingSectorList(CPtrList &list, const CVector &posit
 				++*nCollidingEntities;
 			}
 		}
+		pNode = pNext;
 	}
 }
 
@@ -1211,7 +1219,8 @@ void
 CWorld::FindObjectsIntersectingCubeSectorList(CPtrList &list, const CVector &vecStartPos, const CVector &vecEndPos,
                                               int16 *nIntersecting, int16 maxEntitiesToFind, CEntity **aEntities)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CEntity *pEntity = (CEntity *)pNode->item;
 		if(pEntity->m_scanCode != GetCurrentScanCode()) {
 			pEntity->m_scanCode = GetCurrentScanCode();
@@ -1225,6 +1234,7 @@ CWorld::FindObjectsIntersectingCubeSectorList(CPtrList &list, const CVector &vec
 				++*nIntersecting;
 			}
 		}
+		pNode = pNext;
 	}
 }
 
@@ -1299,7 +1309,8 @@ CWorld::FindObjectsIntersectingAngledCollisionBoxSectorList(CPtrList &list, cons
                                                             int16 *nEntitiesFound, int16 maxEntitiesToFind,
                                                             CEntity **aEntities)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CEntity *pEntity = (CEntity *)pNode->item;
 		if(pEntity->m_scanCode != GetCurrentScanCode()) {
 			pEntity->m_scanCode = GetCurrentScanCode();
@@ -1312,6 +1323,7 @@ CWorld::FindObjectsIntersectingAngledCollisionBoxSectorList(CPtrList &list, cons
 				++*nEntitiesFound;
 			}
 		}
+		pNode = pNext;
 	}
 }
 
@@ -1368,7 +1380,8 @@ CWorld::FindMissionEntitiesIntersectingCubeSectorList(CPtrList &list, const CVec
                                                       int16 maxEntitiesToFind, CEntity **aEntities, bool bIsVehicleList,
                                                       bool bIsPedList)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CEntity *pEntity = (CEntity *)pNode->item;
 		if(pEntity->m_scanCode != GetCurrentScanCode()) {
 			pEntity->m_scanCode = GetCurrentScanCode();
@@ -1389,6 +1402,7 @@ CWorld::FindMissionEntitiesIntersectingCubeSectorList(CPtrList &list, const CVec
 				++*nIntersecting;
 			}
 		}
+		pNode = pNext;
 	}
 }
 
@@ -1472,7 +1486,8 @@ void
 CWorld::CallOffChaseForAreaSectorListVehicles(CPtrList &list, float x1, float y1, float x2, float y2, float fStartX,
                                               float fStartY, float fEndX, float fEndY)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CVehicle *pVehicle = (CVehicle *)pNode->item;
 		if(pVehicle->m_scanCode != GetCurrentScanCode()) {
 			pVehicle->m_scanCode = GetCurrentScanCode();
@@ -1505,13 +1520,15 @@ CWorld::CallOffChaseForAreaSectorListVehicles(CPtrList &list, float x1, float y1
 				}
 			}
 		}
+		pNode = pNext;
 	}
 }
 
 void
 CWorld::CallOffChaseForAreaSectorListPeds(CPtrList &list, float x1, float y1, float x2, float y2)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CPed *pPed = (CPed *)pNode->item;
 		const CVector &pedPos = pPed->GetPosition();
 		if(pPed->m_scanCode != GetCurrentScanCode()) {
@@ -1536,6 +1553,7 @@ CWorld::CallOffChaseForAreaSectorListPeds(CPtrList &list, float x1, float y1, fl
 				}
 			}
 		}
+		pNode = pNext;
 	}
 }
 
@@ -1663,30 +1681,40 @@ CWorld::ShutDown(void)
 {
 	for(int i = 0; i < NUMSECTORS_X * NUMSECTORS_Y; i++) {
 		CSector *pSector = GetSector(i % NUMSECTORS_X, i / NUMSECTORS_Y);
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_BUILDINGS].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_BUILDINGS].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_VEHICLES].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_VEHICLES].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_PEDS].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_PEDS].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_OBJECTS].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_OBJECTS].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_DUMMIES].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_DUMMIES].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
 #ifndef FIX_BUGS
 		pSector->m_lists[ENTITYLIST_BUILDINGS].Flush();
@@ -1696,10 +1724,12 @@ CWorld::ShutDown(void)
 #endif
 	}
 	for(int32 i = 0; i < NUM_LEVELS; i++) {
-		for(CPtrNode *pNode = ms_bigBuildingsList[i].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = ms_bigBuildingsList[i].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			// Maybe remove from world here?
 			delete pEntity;
+			pNode = pNext;
 		}
 		ms_bigBuildingsList[i].Flush();
 	}
@@ -1753,22 +1783,28 @@ CWorld::ClearForRestart(void)
 	CPopulation::ConvertAllObjectsToDummyObjects();
 	for(int i = 0; i < NUMSECTORS_X * NUMSECTORS_Y; i++) {
 		CSector *pSector = GetSector(i % NUMSECTORS_X, i / NUMSECTORS_Y);
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_PEDS].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_PEDS].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = GetBigBuildingList(LEVEL_GENERIC).first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = GetBigBuildingList(LEVEL_GENERIC).first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CVehicle *pVehicle = (CVehicle *)pNode->item;
 			if(pVehicle && pVehicle->IsVehicle() && pVehicle->IsPlane()) {
 				Remove(pVehicle);
 				delete pVehicle;
 			}
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_VEHICLES].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_VEHICLES].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
 	}
 	CPools::CheckPoolsEmpty();
@@ -1896,20 +1932,26 @@ CWorld::RemoveStaticObjects()
 {
 	for(int i = 0; i < NUMSECTORS_X * NUMSECTORS_Y; i++) {
 		CSector *pSector = GetSector(i % NUMSECTORS_X, i / NUMSECTORS_Y);
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_BUILDINGS].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_BUILDINGS].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_OBJECTS].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_OBJECTS].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
-		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_DUMMIES].first; pNode; pNode = pNode->next) {
+		for(CPtrNode *pNode = pSector->m_lists[ENTITYLIST_DUMMIES].first; pNode; ) {
+			CPtrNode *pNext = pNode->next;
 			CEntity *pEntity = (CEntity *)pNode->item;
 			Remove(pEntity);
 			delete pEntity;
+			pNode = pNext;
 		}
 		pSector->m_lists[ENTITYLIST_BUILDINGS].Flush();
 		pSector->m_lists[ENTITYLIST_BUILDINGS_OVERLAP].Flush();
@@ -1946,7 +1988,8 @@ CWorld::Process(void)
 		CRecordDataForChase::ProcessControlCars();
 		CRecordDataForChase::SaveOrRetrieveCarPositions();
 	} else {
-		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+			CPtrNode *next = node->next;
 			CEntity *movingEnt = (CEntity *)node->item;
 			if(!movingEnt->bRemoveFromWorld && movingEnt->m_rwObject && RwObjectGetType(movingEnt->m_rwObject) == rpCLUMP &&
 			   RpAnimBlendClumpGetFirstAssociation(movingEnt->GetClump())) {
@@ -1958,8 +2001,10 @@ CWorld::Process(void)
 					RpAnimBlendClumpUpdateAnimations(movingEnt->GetClump(), CTimer::GetTimeStepInSeconds(), !movingEnt->bOffscreen);
 				}
 			}
+			node = next;
 		}
-		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+			CPtrNode *next = node->next;
 			CPhysical *movingEnt = (CPhysical *)node->item;
 			if(movingEnt->bRemoveFromWorld) {
 				RemoveEntityInsteadOfProcessingIt(movingEnt);
@@ -1967,9 +2012,11 @@ CWorld::Process(void)
 				movingEnt->ProcessControl();
 				if(movingEnt->GetIsStatic()) { movingEnt->RemoveFromMovingList(); }
 			}
+			node = next;
 		}
 		bForceProcessControl = true;
-		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+			CPtrNode *next = node->next;
 			CPhysical *movingEnt = (CPhysical *)node->item;
 			if(movingEnt->bWasPostponed) {
 				if(movingEnt->bRemoveFromWorld) {
@@ -1979,37 +2026,45 @@ CWorld::Process(void)
 					if(movingEnt->GetIsStatic()) { movingEnt->RemoveFromMovingList(); }
 				}
 			}
+			node = next;
 		}
 		bForceProcessControl = false;
 		if(CReplay::IsPlayingBack()) {
-			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+				CPtrNode *next = node->next;
 				CEntity *movingEnt = (CEntity *)node->item;
 				movingEnt->bIsInSafePosition = true;
 				movingEnt->GetMatrix().UpdateRW();
 				movingEnt->UpdateRwFrame();
+				node = next;
 			}
 		} else {
 			bNoMoreCollisionTorque = false;
-			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+				CPtrNode *next = node->next;
 				CEntity *movingEnt = (CEntity *)node->item;
 				if(!movingEnt->bIsInSafePosition) {
 					movingEnt->ProcessCollision();
 					movingEnt->GetMatrix().UpdateRW();
 					movingEnt->UpdateRwFrame();
 				}
+				node = next;
 			}
 			bNoMoreCollisionTorque = true;
 			for(int i = 0; i < 4; i++) {
-				for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+				for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+					CPtrNode *next = node->next;
 					CEntity *movingEnt = (CEntity *)node->item;
 					if(!movingEnt->bIsInSafePosition) {
 						movingEnt->ProcessCollision();
 						movingEnt->GetMatrix().UpdateRW();
 						movingEnt->UpdateRwFrame();
 					}
+					node = next;
 				}
 			}
-			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+				CPtrNode *next = node->next;
 				CEntity *movingEnt = (CEntity *)node->item;
 				if(!movingEnt->bIsInSafePosition) {
 					movingEnt->bIsStuck = true;
@@ -2018,9 +2073,11 @@ CWorld::Process(void)
 					movingEnt->UpdateRwFrame();
 					if(!movingEnt->bIsInSafePosition) { movingEnt->bIsStuck = true; }
 				}
+				node = next;
 			}
 			bSecondShift = false;
-			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+				CPtrNode *next = node->next;
 				CEntity *movingEnt = (CEntity *)node->item;
 				if(!movingEnt->bIsInSafePosition) {
 					movingEnt->ProcessShift();
@@ -2028,9 +2085,11 @@ CWorld::Process(void)
 					movingEnt->UpdateRwFrame();
 					if(!movingEnt->bIsInSafePosition) { movingEnt->bIsStuck = true; }
 				}
+				node = next;
 			}
 			bSecondShift = true;
-			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+			for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+				CPtrNode *next = node->next;
 				CPhysical *movingEnt = (CPhysical *)node->item;
 				if(!movingEnt->bIsInSafePosition) {
 					movingEnt->ProcessShift();
@@ -2046,9 +2105,11 @@ CWorld::Process(void)
 						}
 					}
 				}
+				node = next;
 			}
 		}
-		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; node = node->next) {
+		for(CPtrNode *node = ms_listMovingEntityPtrs.first; node; ) {
+			CPtrNode *next = node->next;
 			CPed *movingPed = (CPed *)node->item;
 			if(movingPed->IsPed()) {
 				if(movingPed->bInVehicle && movingPed->m_nPedState != PED_EXIT_TRAIN ||
@@ -2087,6 +2148,7 @@ CWorld::Process(void)
 					movingPed->UpdateRwFrame();
 				}
 			}
+			node = next;
 		}
 		CMessages::Process();
 		Players[PlayerInFocus].Process();
@@ -2126,7 +2188,8 @@ void
 CWorld::TriggerExplosionSectorList(CPtrList &list, const CVector &position, float fRadius, float fPower,
                                    CEntity *pCreator, bool bProcessVehicleBombTimer)
 {
-	for(CPtrNode *pNode = list.first; pNode; pNode = pNode->next) {
+	for(CPtrNode *pNode = list.first; pNode; ) {
+		CPtrNode *pNext = pNode->next;
 		CPhysical *pEntity = (CPhysical *)pNode->item;
 		CVector vecDistance = pEntity->GetPosition() - position;
 		float fMagnitude = vecDistance.Magnitude();
@@ -2231,6 +2294,7 @@ CWorld::TriggerExplosionSectorList(CPtrList &list, const CVector &position, floa
 				}
 			}
 		}
+		pNode = pNext;
 	}
 }
 
