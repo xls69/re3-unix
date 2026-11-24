@@ -6,14 +6,10 @@
 #define VANILLA_DEFINES
 #endif
 
-#ifdef CUSTOM
-	#define DEBUGMENU
-	#define MASTER
-	#define STABLE
-	#define NO_LIGHT_CUBES
-	#define HOOD_DETACH
-	#define MODERN_KEYMAP
-#endif
+#define MASTER
+#define NO_LIGHT_CUBES
+#define HOOD_DETACH
+#define MODERN_KEYMAP
 
 enum Config {
 	NUMPLAYERS = 1,	// 4 on PS2
@@ -185,10 +181,8 @@ enum Config {
 #	ifndef GTA_HANDHELD
 #		define PC_PLAYER_CONTROLS	// mouse player/cam mode
 #	endif
-#ifndef STABLE
-#	define GTA_REPLAY
-#	define GTA_SCENE_EDIT
-#endif
+//	#	define GTA_REPLAY // causes issues and occasional crashes
+//	#	define GTA_SCENE_EDIT // not needed by most users
 #	define PC_MENU
 #	define GTA_PC_CONTROLS	// enables keyboard and mouse. currently GTA_PC and a few other defines will not work without this
 #elif defined GTA_XBOX
@@ -262,6 +256,7 @@ enum Config {
 #ifdef MASTER
 	// only in master builds
 	#undef DRAW_GAME_VERSION_TEXT
+	#define DEBUGMENU // everyone likes the debug menu
 #else
 	// not in master builds
 	#define VALIDATE_SAVE_SIZE
@@ -279,7 +274,7 @@ enum Config {
 #endif
 
 #define FIX_BUGS		// fixes bugs that we've came across during reversing. You can undefine this only on release builds.
-#define MORE_LANGUAGES		// Add more translations to the game
+//#define MORE_LANGUAGES		// Add more translations to the game // issues with Russian and Japanese, needs fixing
 #define COMPATIBLE_SAVES // this allows changing structs while keeping saves compatible, and keeps saves compatible between platforms, needs to be enabled on 64bit builds!
 #define FIX_INCOMPATIBLE_SAVES // try to fix incompatible saves, requires COMPATIBLE_SAVES
 #define LOAD_INI_SETTINGS // as the name suggests. fundamental for CUSTOM_FRONTEND_OPTIONS
@@ -325,10 +320,8 @@ enum Config {
 #ifdef LIBRW
 #define EXTENDED_COLOURFILTER		// more options for colour filter (replaces mblur)
 #define EXTENDED_PIPELINES		// custom render pipelines (includes Neo)
-#ifndef STABLE
-#define SCREEN_DROPLETS			// neo water droplets
-#define NEW_RENDERER		// leeds-like world rendering, needs librw
-#endif
+//	#define SCREEN_DROPLETS			// neo water droplets // needs reworking due to several issues
+//	#define NEW_RENDERER		// leeds-like world rendering, needs librw // unstable
 #endif
 
 #define FIX_SPRITES	// fix sprites aspect ratio(moon, coronas, particle etc)
@@ -357,7 +350,7 @@ enum Config {
 #define BUTTON_ICONS // use textures to show controller buttons
 
 // Hud, frontend and radar
-#define PS2_HUD
+//#define PS2_HUD
 #define HUD_ENHANCEMENTS	// Adjusts some aspects to make the HUD look/behave a little bit better.
 // #define BETA_SLIDING_TEXT
 #define TRIANGULAR_BLIPS	// height indicating triangular radar blips, as in VC
@@ -379,7 +372,7 @@ enum Config {
 #	define TRIANGLE_BACK_BUTTON
 //#	define CIRCLE_BACK_BUTTON
 //#	define PS2_LIKE_MENU	// An effort to recreate PS2 menu, cycling through tabs, different bg etc.
-#	define PS2_SAVE_DIALOG		// PS2 style save dialog with transparent black box
+//#	define PS2_SAVE_DIALOG		// PS2 style save dialog with transparent black box
 #	define CUSTOM_FRONTEND_OPTIONS
 
 #	ifdef CUSTOM_FRONTEND_OPTIONS
@@ -387,13 +380,9 @@ enum Config {
 #		define GRAPHICS_MENU_OPTIONS // otherwise Display settings will be scrollable
 #		define NO_ISLAND_LOADING  // disable loadscreen between islands via loading all island data at once, consumes more memory and CPU
 #		define CUTSCENE_BORDERS_SWITCH
-#ifndef STABLE
-#		define MULTISAMPLING		// adds MSAA option
-#endif
+//#		define MULTISAMPLING		// adds MSAA option // now that GLFW is more stable, this needs proper testing before being included in crossplatform builds
 #		define INVERT_LOOK_FOR_PAD // add bInvertLook4Pad from VC
-#ifndef STABLE
-#		define PED_CAR_DENSITY_SLIDERS
-#endif
+//#		define PED_CAR_DENSITY_SLIDERS // causes crashes and needs a lot of rework
 #	endif
 #endif
 
@@ -401,9 +390,9 @@ enum Config {
 #define USE_DEBUG_SCRIPT_LOADER	// Loads main.scm by default. Hold R for main_freeroam.scm and D for main_d.scm
 #define USE_MEASUREMENTS_IN_METERS // makes game use meters instead of feet in script
 #define USE_PRECISE_MEASUREMENT_CONVERTION // makes game convert feet to meeters more precisely
-#if defined (PC_MENU) && !defined (STABLE)
-#	define MISSION_REPLAY // mobile feature
-#endif
+//#ifdef PC_MENU
+//#define MISSION_REPLAY // mobile feature // has been associated with many crashes
+//#endif
 //#define SIMPLIER_MISSIONS // apply simplifications from mobile
 #define USE_ADVANCED_SCRIPT_DEBUG_OUTPUT
 #define SCRIPT_LOG_FILE_LEVEL 0 // 0 == no log, 1 == overwrite every frame, 2 == full log
@@ -444,7 +433,7 @@ enum Config {
 // Camera
 //#define PS2_CAM_TRANSITION	// old way of transitioning between cam modes
 #define IMPROVED_CAMERA		// Better Debug cam, and maybe more in the future
-#define FREE_CAM		// Rotating cam
+//#define FREE_CAM		// Rotating cam // OG PC players don't like this, and it still needs a few fixes (e.g Rhino turret auto-rotation)
 
 // Audio
 #define EXTERNAL_3D_SOUND // use external engine to simulate 3d audio spatialization. OpenAL would not work without it (because it works in a 3d space

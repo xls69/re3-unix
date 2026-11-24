@@ -162,7 +162,7 @@ end
 
 workspace "re3"
 	language "C++"
-	configurations { "Debug", "Release", "Custom" }
+	configurations { "Debug", "Release" }
 	startproject "re3"
 	location "build"
 	symbols "Full"
@@ -209,14 +209,6 @@ workspace "re3"
 		if(_OPTIONS["with-lto"]) then
 			flags { "LinkTimeOptimization" }
 		end
-	
-	filter "configurations:Custom"
-		defines { "NDEBUG", "CUSTOM" }
-		optimize "Speed"
-		if(_OPTIONS["with-lto"]) then
-			flags { "LinkTimeOptimization" }
-		end
-
 
 	filter { "platforms:linux*" }
 		system "linux"
