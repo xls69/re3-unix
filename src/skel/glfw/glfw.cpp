@@ -1896,6 +1896,62 @@ windowIconifyCB(GLFWwindow* window, int iconified) {
 /*
  *****************************************************************************
  */
+
+#ifdef _WIN32
+
+static void
+SetGameWorkingDirectory(void)
+{
+    wchar_t exeDir[4096];
+    DWORD n = GetModuleFileNameW(NULL, exeDir, sizeof(exeDir) / sizeof(exeDir[0]));
+    if (n == 0 || n >= sizeof(exeDir) / sizeof(exeDir[0]))
+        return;
+    exeDir[n] = L'\0';
+
+    wchar_t *lastSep = NULL;
+    for (wchar_t *p = exeDir; *p != L'\0'; p++)
+        if (*p == L'/' || *p == L'\\')
+            lastSep = p;
+    if (lastSep == NULL)
+        return;
+    *lastSep = L'\0';
+
+    wchar_t dataPath[4096 + 64];
+    swprintf(dataPath, sizeof(dataPath) / sizeof(dataPath[0]),
+             L"%ls/data/gta3.dat", exeDir);
+
+    if (GetFileAttributesW(dataPath) == INVALID_FILE_ATTRIBUTES)
+        return;
+    SetCurrentDirectoryW(exeDir);
+}
+
+#else
+
+static void
+SetGameWorkingDirectory(void)
+{
+    char exeDir[4096];
+    ssize_t n = readlink("/proc/self/exe", exeDir, sizeof(exeDir) - 1);
+    if (n <= 0 || (size_t)n >= sizeof(exeDir) - 1)
+        return;
+    exeDir[n] = '\0';
+
+    char *lastSep = strrchr(exeDir, '/');
+    if (lastSep == NULL)
+        return;
+    *lastSep = '\0';
+
+    char dataPath[4096 + 64];
+    snprintf(dataPath, sizeof(dataPath), "%s/data/gta3.dat", exeDir);
+
+    struct stat st;
+    if (stat(dataPath, &st) != 0)
+        return;
+    chdir(exeDir);
+}
+
+#endif
+
 #ifdef _WIN32
 int PASCAL
 WinMain(HINSTANCE instance,
@@ -1923,6 +1979,8 @@ int
 main(int argc, char *argv[])
 {
 #endif
+
+	SetGameWorkingDirectory();
 	RwV2d pos;
 	RwInt32 i;
 
