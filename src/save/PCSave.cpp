@@ -19,13 +19,13 @@ C_PcSave PcSaveHelper;
 void
 C_PcSave::SetSaveDirectory(const char *path)
 {
-#if defined ANDROID || defined __APPLE__
-	sprintf(DefaultPCSaveFileName, "%s/%s", path, "GTAVCsf");
-#if defined ANDROID
+#ifdef _WIN32
+    sprintf(DefaultPCSaveFileName, "%s\\%s", path, "GTAVCsf");
+#else
+    sprintf(DefaultPCSaveFileName, "%s/%s", path, "GTAVCsf");
+#ifdef ANDROID
     debug("SetSaveDirectory: %s", DefaultPCSaveFileName);
 #endif
-#else
-    sprintf(DefaultPCSaveFileName, "%s\\%s", path, "GTAVCsf");
 #endif
 }
 
@@ -40,7 +40,10 @@ C_PcSave::DeleteSlot(int32 slot)
 
 	PcSaveHelper.nErrorCode = SAVESTATUS_SUCCESSFUL;
 	sprintf(FileName, "%s%i.b", DefaultPCSaveFileName, slot + 1);
-	DeleteFile(FileName);
+	if (DeleteFile(FileName) != 0) {
+		PcSaveHelper.nErrorCode = SAVESTATUS_ERR_SAVE_CLOSE;
+		return false;
+	}
 	SlotSaveDate[slot][0] = '\0';
 	return true;
 }
