@@ -1,6 +1,8 @@
 #ifndef __GTA_ANIMVIEWER_H__
 #define __GTA_ANIMVIEWER_H__
 
+class CEntity;
+
 class CAnimViewer {
 public:
 	static int animTxdSlot;
