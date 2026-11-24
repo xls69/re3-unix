@@ -629,7 +629,7 @@ void CRadar::DrawBlips()
 				case BLIP_CHAR:
 				case BLIP_OBJECT:
 					if (ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_HARDWARE
-						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PROPERTY
+						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY/* && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PROPERTY*/	// SilentPatchVC: Restore property map blip.
 						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN
 						&& (!CTheScripts::bPlayerIsInTheStatium || !FrontEndMenuManager.m_bMenuMapActive))
 
@@ -647,7 +647,7 @@ void CRadar::DrawBlips()
 				case BLIP_COORD:
 				case BLIP_CONTACT_POINT:
 					if (ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_HARDWARE
-						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PROPERTY
+						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY/* && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PROPERTY*/	// SilentPatchVC: Restore property map blip.
 						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PHONE
 						&& (!CTheScripts::bPlayerIsInTheStatium || !FrontEndMenuManager.m_bMenuMapActive))
 
