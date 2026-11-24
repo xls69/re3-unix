@@ -19,7 +19,14 @@ C_PcSave PcSaveHelper;
 void
 C_PcSave::SetSaveDirectory(const char *path)
 {
-	sprintf(DefaultPCSaveFileName, "%s\\%s", path, "GTAVCsf");
+#if defined ANDROID || defined __APPLE__
+	sprintf(DefaultPCSaveFileName, "%s/%s", path, "GTAVCsf");
+#if defined ANDROID
+    debug("SetSaveDirectory: %s", DefaultPCSaveFileName);
+#endif
+#else
+    sprintf(DefaultPCSaveFileName, "%s\\%s", path, "GTAVCsf");
+#endif
 }
 
 bool
