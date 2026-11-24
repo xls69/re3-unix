@@ -1078,13 +1078,15 @@ bool CStream::Open(const char* filename, uint32 overrideSampleRate)
 #if !defined(_WIN32)
 	char *real = casepath(filename);
 	if (real) {
-		strcpy(m_aFilename, real);
+		strncpy(m_aFilename, real, MAX_PATH - 1);
+		m_aFilename[MAX_PATH - 1] = '\0';
 		free(real);
 	} else {
 #else
 	{
 #endif
-		strcpy(m_aFilename, filename);
+		strncpy(m_aFilename, filename, MAX_PATH - 1);
+		m_aFilename[MAX_PATH - 1] = '\0';
 	}
 		
 	DEV("Stream %s\n", m_aFilename);
