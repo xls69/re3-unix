@@ -162,7 +162,7 @@ end
 
 workspace "reVC"
 	language "C++"
-	configurations { "Debug", "Release", "Custom" }
+	configurations { "Debug", "Release" }
 	startproject "reVC"
 	location "build"
 	symbols "Full"
@@ -205,13 +205,6 @@ workspace "reVC"
 
 	filter "configurations:not Debug"
 		defines { "NDEBUG" }
-		optimize "Speed"
-		if(_OPTIONS["with-lto"]) then
-			flags { "LinkTimeOptimization" }
-		end
-
-	filter "configurations:Custom"
-		defines { "NDEBUG", "CUSTOM" }
 		optimize "Speed"
 		if(_OPTIONS["with-lto"]) then
 			flags { "LinkTimeOptimization" }

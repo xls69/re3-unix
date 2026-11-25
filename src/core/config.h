@@ -6,13 +6,9 @@
 #define VANILLA_DEFINES
 #endif
 
-#ifdef CUSTOM
-	#define DEBUGMENU
-	#define MASTER
-	#define STABLE
-	#define NO_LIGHT_CUBES
-	#define MODERN_KEYMAP
-#endif
+#define MASTER
+#define NO_LIGHT_CUBES
+#define MODERN_KEYMAP
 
 enum Config {
 	NUMPLAYERS = 1,
@@ -193,10 +189,8 @@ enum Config {
 #	ifndef GTA_HANDHELD
 #		define PC_PLAYER_CONTROLS	// mouse player/cam mode
 #	endif
-#ifndef STABLE
-#	define GTA_REPLAY
-#	define GTA_SCENE_EDIT
-#endif
+//	#	define GTA_REPLAY // causes issues and occasional crashes
+//	#	define GTA_SCENE_EDIT // not needed by most users
 #	define PC_MENU
 #	define PC_WATER
 #	define GTA_PC_CONTROLS	// enables keyboard and mouse. currently GTA_PC and a few other defines will not work without this
@@ -273,6 +267,7 @@ enum Config {
 #ifdef MASTER
 	// only in master builds
 	#undef DRAW_GAME_VERSION_TEXT
+	#define DEBUGMENU // everyone likes the debug menu
 #else
 	// not in master builds
 	#define VALIDATE_SAVE_SIZE
@@ -290,7 +285,7 @@ enum Config {
 #endif
 
 #define FIX_BUGS		// fixes bugs that we've came across during reversing. You can undefine this only on release builds.
-#define MORE_LANGUAGES		// Add more translations to the game
+//#define MORE_LANGUAGES		// Add more translations to the game // issues with Russian and Japanese, needs fixing
 #define COMPATIBLE_SAVES // this allows changing structs while keeping saves compatible, and keeps saves compatible between platforms
 #define FIX_INCOMPATIBLE_SAVES // try to fix incompatible saves, requires COMPATIBLE_SAVES
 #define LOAD_INI_SETTINGS // as the name suggests. fundamental for CUSTOM_FRONTEND_OPTIONS
@@ -330,10 +325,8 @@ enum Config {
 #ifdef LIBRW
 #define EXTENDED_COLOURFILTER		// more options for colour filter (replaces mblur)
 #define EXTENDED_PIPELINES		// custom render pipelines (includes Neo)
-#ifndef STABLE
-#define SCREEN_DROPLETS			// neo water droplets
-#define NEW_RENDERER		// leeds-like world rendering, needs librw
-#endif
+//	#define SCREEN_DROPLETS			// neo water droplets // needs reworking due to several issues
+//	#define NEW_RENDERER		// leeds-like world rendering, needs librw // unstable
 #endif
 
 #define FIX_SPRITES	// fix sprites aspect ratio(moon, coronas, particle etc)
@@ -389,13 +382,9 @@ enum Config {
 #		define GRAPHICS_MENU_OPTIONS // otherwise Display settings will be scrollable
 #		define NO_ISLAND_LOADING  // disable loadscreen between islands via loading all island data at once, consumes more memory and CPU
 #		define CUTSCENE_BORDERS_SWITCH
-#ifndef STABLE
-#		define MULTISAMPLING		// adds MSAA option
-#endif
+//#		define MULTISAMPLING		// adds MSAA option // now that GLFW is more stable, this needs proper testing before being included in crossplatform builds
 #		define INVERT_LOOK_FOR_PAD // enable the hidden option
-#ifndef STABLE
-#		define PED_CAR_DENSITY_SLIDERS
-#endif
+//#		define PED_CAR_DENSITY_SLIDERS // causes crashes and needs a lot of rework
 #	endif
 #endif
 
@@ -410,11 +399,11 @@ enum Config {
 #if (defined SUPPORT_XBOX_SCRIPT && defined SUPPORT_MOBILE_SCRIPT)
 static_assert(false, "SUPPORT_XBOX_SCRIPT and SUPPORT_MOBILE_SCRIPT are mutually exclusive");
 #endif
-#if defined (PC_MENU) && !defined (STABLE)
-#define MISSION_REPLAY // mobile feature
+//#ifdef PC_MENU
+//#define MISSION_REPLAY // mobile feature // has been associated with many crashes
 //#define SIMPLER_MISSIONS // apply simplifications from mobile
-#define USE_MISSION_REPLAY_OVERRIDE_FOR_NON_MOBILE_SCRIPT
-#endif
+//#define USE_MISSION_REPLAY_OVERRIDE_FOR_NON_MOBILE_SCRIPT
+//#endif
 #define USE_ADVANCED_SCRIPT_DEBUG_OUTPUT
 #define SCRIPT_LOG_FILE_LEVEL 0 // 0 == no log, 1 == overwrite every frame, 2 == full log
 
@@ -452,7 +441,7 @@ static_assert(false, "SUPPORT_XBOX_SCRIPT and SUPPORT_MOBILE_SCRIPT are mutually
 
 // Camera
 #define IMPROVED_CAMERA		// Better Debug cam, and maybe more in the future
-#define FREE_CAM		// Rotating cam
+//#define FREE_CAM		// Rotating cam // OG PC players don't like this, and it still needs a few fixes (e.g Rhino turret auto-rotation)
 
 // Audio
 #define EXTERNAL_3D_SOUND // use external engine to simulate 3d audio spatialization. OpenAL would not work without it (because it works in a 3d space
