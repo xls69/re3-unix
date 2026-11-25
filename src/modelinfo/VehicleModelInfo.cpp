@@ -723,6 +723,11 @@ GetListOfComponentsNotUsedByRules(uint32 comprules, int32 numComps, int32 *comps
 	int32 i, n;
 	int32 unused[6] = { 0, 1, 2, 3, 4, 5 };
 
+    // Rule 4 uses the entire extras collection, leaving nothing
+    // for the fallback second-component selection.
+    if(COMPRULE_RULE(comprules) == 4)
+        return 0;
+
 	// first comprule
 	if(COMPRULE_RULE(comprules) && IsValidCompRule(COMPRULE_RULE(comprules)))
 		for(i = 0; i < 3; i++){
