@@ -1,8 +1,8 @@
 <img src="https://github.com/xls69/re3-unix/blob/miami/res/images/logo_1024.png?raw=true" alt="re3 logo" width="200">
 
-# Message for Take-Two
+# Fuck you letter for Take-Two and their fans
 
-*Whereas you, in your boundless greed, have seen fit to dismantle the entire GTA modding community and lay waste to the grandest projects of our shared childhood, hear now My decree: each time you strike down this repository, I shall raise it anew. Your DMCA notices, your lawsuits, your hired hounds of inquiry — none shall avail you. And should any among your little flock cheer on these deeds, let them know that a single bullet to the forehead should be their reward.*
+*Whereas you, in your boundless greed, have seen fit to dismantle the entire GTA modding community and lay waste to the grandest projects of our shared childhood, hear now My decree: each time you strike down this repository, I shall raise it anew. Your DMCA notices, your lawsuits, your hired hounds of inquiry, none shall avail you. And should any among your little flock cheer on these deeds, let them know that a single bullet to the forehead should be their reward.*
 
 ## DISCLAIMER
 
